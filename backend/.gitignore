@@ -1,0 +1,24 @@
+# ── Backend .gitignore ───────────────────────────────────────
+node_modules/
+.cache/
+coverage/
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+*.log
+npm-debug.log*
+
+# User uploads — keep folder structure, not files
+uploads/avatars/*
+uploads/notices/*
+uploads/events/*
+!uploads/avatars/.gitkeep
+!uploads/notices/.gitkeep
+!uploads/events/.gitkeep
+!uploads/.gitkeep
+
+.DS_Store
+Thumbs.db

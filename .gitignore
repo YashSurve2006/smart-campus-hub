@@ -1,0 +1,140 @@
+# ============================================================
+# Smart Campus Hub — Root .gitignore
+# Production GitHub Showcase Version
+# ============================================================
+
+# ============================================================
+# OS / SYSTEM FILES
+# ============================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================================================
+# EDITOR / IDE
+# ============================================================
+.idea/
+.vscode/settings.json
+.vscode/*.log
+*.iml
+*.swp
+*.swo
+*~
+
+# ============================================================
+# LOGS
+# ============================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================================
+# TEMP / CACHE
+# ============================================================
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+.cache/
+.turbo/
+coverage/
+
+# ============================================================
+# ENVIRONMENT / SECRETS
+# ============================================================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# keep examples
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# ============================================================
+# NODE
+# ============================================================
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+
+# ============================================================
+# BUILD OUTPUT
+# ============================================================
+dist/
+build/
+out/
+.vite/
+*.tsbuildinfo
+
+# ============================================================
+# BACKEND USER GENERATED UPLOADS
+# ============================================================
+backend/uploads/avatars/*
+backend/uploads/notices/*
+backend/uploads/events/*
+
+!backend/uploads/avatars/.gitkeep
+!backend/uploads/notices/.gitkeep
+!backend/uploads/events/.gitkeep
+
+# ============================================================
+# DATABASE EXPORTS / BACKUPS
+# ============================================================
+*.sql.bak
+*.dump
+*.sql.gz
+*.backup
+
+# ============================================================
+# SECURITY KEYS (REAL PRIVATE FILES ONLY)
+# ============================================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ============================================================
+# DOCKER LOCAL VOLUMES
+# ============================================================
+.docker/
+
+# ============================================================
+# OPTIONAL LOCAL TEST OUTPUT
+# ============================================================
+playwright-report/
+test-results/
+
+# ============================================================
+# KEEP PROJECT ASSETS FOR GITHUB SHOWCASE
+# ============================================================
+
+# screenshots MUST be committed
+# docs MUST be committed
+# certificates MUST be committed if part of portfolio
+# validation scripts kept for QA reproducibility
+
+# ============================================================
+# OPTIONAL DEBUG JUNK ONLY
+# ============================================================
+backend/scripts/*.tmp
+backend/scripts/*_old.*
+backend/scripts/*_backup.*
+backend/scripts/*_copy.*

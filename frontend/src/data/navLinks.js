@@ -1,0 +1,61 @@
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Bell,
+  Map,
+  UserCircle,
+  Megaphone,
+  Users,
+  UserCog,
+  BarChart3,
+  ClipboardCheck,
+  BookOpen,
+  Sparkles,
+  Newspaper,
+  FolderOpen,
+  Shield,
+  GraduationCap,
+  Brain,
+} from 'lucide-react';
+
+export const studentNav = [
+  { to: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/student/notices', label: 'Notices', icon: Newspaper },
+  { to: '/student/attendance', label: 'Attendance', icon: ClipboardCheck },
+  { to: '/student/timetable', label: 'Timetable', icon: CalendarDays },
+  { to: '/student/events', label: 'Events', icon: Sparkles },
+  { to: '/student/notifications', label: 'Notifications', icon: Bell },
+  { to: '/student/campus', label: 'Campus map', icon: Map },
+  { to: '/student/files', label: 'Files', icon: FolderOpen },
+  { to: '/student/results', label: 'Results', icon: GraduationCap },
+  { to: '/student/ai-results', label: 'AI Insights', icon: Brain },
+  { to: '/student/profile', label: 'Profile', icon: UserCircle },
+];
+
+export const facultyNav = [
+  { to: '/faculty/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/faculty/notices', label: 'Upload notices', icon: Megaphone },
+  { to: '/faculty/events', label: 'Events', icon: Sparkles },
+  { to: '/faculty/notifications', label: 'Notifications', icon: Bell },
+  { to: '/faculty/attendance', label: 'Attendance', icon: ClipboardCheck },
+  { to: '/faculty/timetable', label: 'Timetable', icon: BookOpen },
+  { to: '/faculty/results', label: 'Results', icon: GraduationCap },
+  { to: '/faculty/ai-results', label: 'AI Assistant', icon: Brain },
+  { to: '/faculty/files', label: 'Files', icon: FolderOpen },
+  { to: '/faculty/profile', label: 'Profile', icon: UserCircle },
+];
+
+export const adminNav = [
+  { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/students', label: 'Students', icon: GraduationCap },
+  { to: '/admin/faculty', label: 'Faculty', icon: UserCog },
+  { to: '/admin/notices', label: 'Notices', icon: Megaphone },
+  { to: '/admin/events', label: 'Events', icon: Sparkles },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell },
+  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { to: '/admin/results', label: 'Results', icon: GraduationCap },
+  { to: '/admin/ai-results', label: 'AI Command', icon: Brain },
+  { to: '/admin/audit', label: 'Audit log', icon: Shield },
+  { to: '/admin/files', label: 'Files', icon: FolderOpen },
+  { to: '/admin/profile', label: 'Profile', icon: UserCircle },
+];

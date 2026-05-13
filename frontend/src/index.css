@@ -1,0 +1,799 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   SMART CAMPUS HUB — NEXT-GEN ENTERPRISE DESIGN SYSTEM v2.1
+   CONTRAST REBALANCE + VISUAL HIERARCHY RESTORATION
+   Premium Surface Tuning: Linear × Vercel × Arc × Framer
+   ================================================================ */
+
+/* ── CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  /* Canvas — deep indigo-navy (unchanged) */
+  --bg-canvas:      #050914;
+  --bg-sidebar:     rgba(8, 10, 34, 0.92);
+
+  /* ▲ REBALANCED: Cards lifted from 0.04→0.07 / 0.06→0.09 — eliminates muddy blend */
+  --bg-card:        rgba(255, 255, 255, 0.07);
+  --bg-card-hover:  rgba(255, 255, 255, 0.11);
+  --bg-elevated:    rgba(255, 255, 255, 0.09);
+  --bg-input:       rgba(255, 255, 255, 0.07);
+
+  /* ▲ REBALANCED: Borders strengthened — clearer card separation */
+  --border-subtle:  rgba(255, 255, 255, 0.09);
+  --border-default: rgba(255, 255, 255, 0.13);
+  --border-strong:  rgba(255, 255, 255, 0.20);
+  --border-focus:   rgba(99, 102, 241, 0.60);
+  --border-input:   rgba(255, 255, 255, 0.12);
+
+  /* ▲ REBALANCED: Typography — proper hierarchy on dark backgrounds */
+  --text-primary:   #f1f5f9;          /* near white, strong */
+  --text-secondary: #cbd5e1;          /* slate-300 — readable supporting text */
+  --text-muted:     #64748b;          /* slate-500 — was #4a5568 (too dark/muddy) */
+  --text-label:     #94a3b8;          /* slate-400 — readable labels */
+  --text-accent:    #a5b4fc;          /* indigo-300 */
+
+  /* Accents — vivid on navy (unchanged) */
+  --accent-indigo:  #6366f1;
+  --accent-blue:    #3b82f6;
+  --accent-violet:  #8b5cf6;
+  --accent-cyan:    #06b6d4;
+  --accent-teal:    #14b8a6;
+
+  /* Status */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger:  #ef4444;
+
+  /* ▲ REBALANCED: Mesh ambient — reduced opacity so content wins */
+  --mesh-indigo:    rgba(99, 102, 241, 0.11);   /* was 0.18 */
+  --mesh-violet:    rgba(139, 92, 246, 0.09);   /* was 0.14 */
+  --mesh-cyan:      rgba(6, 182, 212, 0.06);    /* was 0.10 */
+  --mesh-blue:      rgba(59, 130, 246, 0.08);   /* was 0.12 */
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Radii */
+  --radius-sm:  0.5rem;
+  --radius-md:  0.75rem;
+  --radius-lg:  1rem;
+  --radius-xl:  1.5rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2rem;
+
+  /* Transitions */
+  --ease-premium: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast:  150ms;
+  --duration-base:  250ms;
+  --duration-slow:  400ms;
+  --duration-xslow: 600ms;
+}
+
+/* ── Base Resets ───────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply min-h-screen font-sans;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ping-slow {
+  75%, 100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes mesh-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -20px) scale(1.05); }
+  66%       { transform: translate(-20px, 15px) scale(0.97); }
+}
+
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.25), 0 0 20px rgba(99,102,241,0.10); }
+  50%       { box-shadow: 0 0 0 1px rgba(99,102,241,0.45), 0 0 30px rgba(99,102,241,0.20); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Shimmer ────────────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.0) 0%,
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ── Glass Panel System v2.1 ────────────────────────────────────── */
+/*
+   REBALANCED:
+   - bg-card lifted (0.04→0.07): cards no longer vanish into canvas
+   - inset highlights stronger (0.06→0.10): top-edge shimmer visible
+   - outer shadows deeper: layered elevation feel
+   - border opacity up: clean card separation
+*/
+
+/* Base glass */
+.glass-panel {
+  @apply rounded-2xl border backdrop-blur-xl;
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.10) inset,   /* top shine */
+    0 8px 32px rgba(0,0,0,0.40),
+    0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* Elevated glass — hero cards, primary surfaces */
+.glass-elevated {
+  @apply rounded-2xl border backdrop-blur-2xl;
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,   /* stronger top shine */
+    0 20px 60px rgba(0,0,0,0.50),
+    0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* Sidebar glass — deep indigo-navy */
+.glass-sidebar {
+  background: var(--bg-sidebar);
+  border-color: var(--border-subtle);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),       /* stronger edge */
+    0 20px 60px rgba(0,0,0,0.65),
+    4px 0 32px rgba(0,0,0,0.45);
+}
+
+/* ── Gradient Border ────────────────────────────────────────────── */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.55),              /* stronger indigo */
+    rgba(139, 92, 246, 0.40),
+    rgba(6, 182, 212, 0.35)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Gradient Text ──────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #f1f5f9, #a5b4fc, #67e8f9);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 6s ease infinite;
+}
+
+.gradient-text-indigo {
+  background: linear-gradient(135deg, #e0e7ff, #818cf8, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Accent line (sidebar active) ───────────────────────────────── */
+.accent-line {
+  @apply absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full;
+  background: linear-gradient(180deg, #a5b4fc, #818cf8);          /* lighter for visibility */
+  box-shadow: 0 0 12px rgba(99,102,241,0.90);                     /* stronger glow */
+}
+
+/* ── Mesh / Ambient Background ──────────────────────────────────── */
+/*
+   REBALANCED: opacity values cut ~40% — background supports content, not competes.
+   Blur radius and spread unchanged so the premium depth feel is preserved.
+*/
+.mesh-ambient {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.11) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 85%, rgba(139,92,246,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 55% 50%, rgba(6,182,212,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 80% 10%, rgba(59,130,246,0.07) 0%, transparent 45%);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99,102,241,0.25) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(99,102,241,0.30);
+  border-radius: 99px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(99,102,241,0.50);
+}
+
+/* ── Glow Effects — amplified for depth ─────────────────────────── */
+.glow-indigo { box-shadow: 0 0 28px rgba(99, 102, 241, 0.28), 0 0 56px rgba(99,102,241,0.10); }
+.glow-blue   { box-shadow: 0 0 28px rgba(59, 130, 246, 0.25), 0 0 56px rgba(59,130,246,0.09); }
+.glow-cyan   { box-shadow: 0 0 28px rgba(6, 182, 212, 0.22),  0 0 56px rgba(6,182,212,0.08); }
+.glow-violet { box-shadow: 0 0 28px rgba(139, 92, 246, 0.25), 0 0 56px rgba(139,92,246,0.09); }
+
+/* ── Animation Utilities ────────────────────────────────────────── */
+.animate-float      { animation: float 4s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+.animate-spin-slow  { animation: spin-slow 8s linear infinite; }
+.animate-ping-slow  { animation: ping-slow 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.4s var(--ease-premium) both; }
+.animate-mesh-drift { animation: mesh-drift 20s ease-in-out infinite; }
+.animate-border-glow { animation: border-glow 3s ease-in-out infinite; }
+
+/* ── Grid Texture — subtler so content dominates ─────────────────── */
+.grid-texture {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.grid-texture-fine {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.020) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.020) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Status Pills ───────────────────────────────────────────────── */
+.status-success { @apply rounded-full border bg-emerald-500/[0.12] text-emerald-300 border-emerald-500/30; }
+.status-warning { @apply rounded-full border bg-amber-500/[0.12] text-amber-300 border-amber-500/30; }
+.status-danger  { @apply rounded-full border bg-rose-500/[0.12] text-rose-300 border-rose-500/30; }
+.status-info    { @apply rounded-full border bg-indigo-500/[0.12] text-indigo-200 border-indigo-500/30; }
+.status-muted   { @apply rounded-full border bg-white/[0.06] text-slate-300 border-slate-600/40; }
+
+/* ── Enterprise Table ───────────────────────────────────────────── */
+/* REBALANCED: header text lifted from slate-600 → slate-400 for readability */
+.ent-table-header {
+  @apply bg-white/[0.04] text-[10px] font-bold uppercase tracking-widest text-slate-400;
+}
+.ent-table-row {
+  @apply border-t border-white/[0.06] transition-colors duration-150 hover:bg-white/[0.04];
+}
+.ent-table-cell {
+  @apply px-5 py-3.5 text-sm text-slate-200;                      /* was slate-300, now brighter */
+}
+
+/* ================================================================
+   ENTERPRISE GLOBAL FORM SYSTEM
+   Global base reset for ALL native form elements.
+   Applied via @layer base — no component changes needed.
+   Inspired by Linear, Vercel, Stripe Dashboard, Framer.
+   ================================================================ */
+
+@layer base {
+  /* ── Core input/textarea/select reset ── */
+  input,
+  textarea,
+  select {
+    /* Dark glass surface */
+    background-color: rgba(255, 255, 255, 0.06);
+    /* Readable border */
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 0.75rem;
+    /* Typography */
+    color: #f1f5f9;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    /* Smooth transitions */
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+    outline: none;
+    /* Prevent browser chrome injecting its own bg */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* ── Placeholder text ── */
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(148, 163, 184, 0.55);  /* slate-400 at 55% — visible but clearly secondary */
+  }
+
+  /* ── Focus state ── */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: rgba(99, 102, 241, 0.65);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 0 0 3px rgba(99, 102, 241, 0.18),
+      0 1px 2px rgba(0, 0, 0, 0.30) inset;
+  }
+
+  /* ── Hover state (not focused) ── */
+  input:not(:focus):not(:disabled):hover,
+  textarea:not(:focus):not(:disabled):hover,
+  select:not(:focus):not(:disabled):hover {
+    border-color: rgba(255, 255, 255, 0.20);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ── Disabled state ── */
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: rgba(148, 163, 184, 0.40);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* ── Read-only state ── */
+  input:read-only,
+  textarea:read-only {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.07);
+    cursor: default;
+  }
+
+  /* ── Select arrow — custom dark caret ── */
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+
+  /* Select option dropdown — dark background */
+  select option {
+    background-color: #0f1629;
+    color: #f1f5f9;
+  }
+
+  /* ── Autofill override — kills white chrome injection ── */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: #f1f5f9 !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(15, 22, 41, 0.95) inset !important;
+    background-color: rgba(15, 22, 41, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.11) !important;
+    caret-color: #f1f5f9;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  /* ── Number input — remove spinners ── */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] { -moz-appearance: textfield; }
+
+  /* ── Search input — remove default X button in webkit ── */
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  /* ── Checkbox / Radio — keep native but colorize ── */
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    background-color: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: #6366f1;
+  }
+
+  input[type='radio'] {
+    border-radius: 9999px;
+  }
+
+  /* ── Range slider ── */
+  input[type='range'] {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    accent-color: #6366f1;
+  }
+
+  /* ── File input ── */
+  input[type='file'] {
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    color: rgba(148, 163, 184, 0.80);
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+  }
+  input[type='file']::file-selector-button {
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.30);
+    border-radius: 0.5rem;
+    color: #a5b4fc;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    padding: 0.375rem 0.875rem;
+    transition: background-color 150ms ease;
+  }
+  input[type='file']::file-selector-button:hover {
+    background: rgba(99, 102, 241, 0.25);
+  }
+}
+
+/* ── Enterprise Inputs (opt-in utility classes — enhanced) ──────── */
+.ent-input {
+  @apply w-full rounded-xl border px-4 py-2.5
+         text-sm text-slate-100
+         backdrop-blur-sm outline-none transition-all duration-200;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+}
+.ent-input::placeholder {
+  color: rgba(148, 163, 184, 0.55);
+}
+.ent-input:hover:not(:focus):not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+.ent-input:focus {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(99, 102, 241, 0.65);
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.20) inset;
+}
+.ent-input:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: rgba(148, 163, 184, 0.40);
+  cursor: not-allowed;
+}
+
+/* Select variant */
+.ent-select {
+  @apply ent-input cursor-pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ent-select option {
+  background-color: #0f1629;
+  color: #f1f5f9;
+}
+
+/* Textarea variant */
+.ent-textarea {
+  @apply ent-input resize-none;
+  min-height: 6rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Label utility */
+.ent-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.80);
+  margin-bottom: 0.375rem;
+}
+
+/* Error state */
+.ent-input-error {
+  border-color: rgba(239, 68, 68, 0.60) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Success state */
+.ent-input-success {
+  border-color: rgba(16, 185, 129, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12) !important;
+}
+
+/* Search input variant — pill shape */
+.ent-search {
+  @apply ent-input rounded-2xl;
+  padding-left: 2.5rem;
+}
+
+
+
+/* ── Focus Ring ─────────────────────────────────────────────────── */
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-indigo-500 focus-visible:ring-offset-2;
+  --tw-ring-offset-color: var(--bg-canvas);
+}
+
+/* ── Section Divider — slightly stronger ────────────────────────── */
+.section-divider {
+  @apply my-2 border-t;
+  border-color: var(--border-default);                             /* was border-subtle */
+}
+
+/* ── Premium Card Hover ─────────────────────────────────────────── */
+.card-hover {
+  @apply transition-all duration-300;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 24px 48px rgba(0,0,0,0.50),
+    0 0 0 1px rgba(255,255,255,0.10),
+    0 0 40px rgba(99,102,241,0.08);
+}
+
+/* ── Sidebar Nav Item — REBALANCED ──────────────────────────────── */
+/*
+   Problem: inactive items were too dim (0.75 opacity on an already-muted color).
+   Active state lacked sufficient contrast against dark sidebar.
+   Fix: inactive brightened, active gets stronger bg + vivid accent text.
+*/
+.nav-item {
+  @apply relative flex items-center gap-3 rounded-xl px-3 py-2.5
+         text-sm font-medium transition-all duration-200;
+}
+
+.nav-item-inactive {
+  color: rgba(148,163,184,0.85);                                   /* was 0.75 — brighter */
+}
+.nav-item-inactive:hover {
+  background: rgba(255,255,255,0.07);                              /* was 0.05 */
+  color: rgba(241,245,249,0.95);
+}
+
+/* REBALANCED active: stronger bg + brighter text + clearer ring */
+.nav-item-active {
+  background: rgba(99,102,241,0.18);                               /* was 0.14 */
+  color: #c7d2fe;                                                  /* indigo-200, was e0e7ff */
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.28) inset,                        /* was 0.20 */
+    0 0 16px rgba(99,102,241,0.08);                                /* ambient glow */
+}
+
+/* ── Back button ────────────────────────────────────────────────── */
+.back-btn {
+  @apply flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold
+         transition-all duration-200 backdrop-blur;
+  background: rgba(255,255,255,0.06);
+  border-color: var(--border-default);
+  color: var(--text-label);
+}
+.back-btn:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  transform: translateX(-2px);
+}
+
+/* ── Page Transition ────────────────────────────────────────────── */
+.page-enter { animation: fade-in-up 0.3s var(--ease-premium) both; }
+
+/* ================================================================
+   TYPOGRAPHY HIERARCHY SYSTEM
+   Enforces contrast on dark backgrounds — no dark slate on dark bg.
+   ================================================================ */
+
+/* Hero / cinematic headings — near white, strong contrast */
+.heading-hero {
+  color: #f1f5f9;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+/* Section headings */
+.heading-section {
+  color: #e2e8f0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Card / widget headings */
+.heading-card {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+/* Supporting text — clear but not primary */
+.text-support {
+  color: #94a3b8;                                                  /* slate-400 */
+  line-height: 1.65;
+}
+
+/* Muted / metadata */
+.text-meta {
+  color: #64748b;                                                  /* slate-500 */
+  font-size: 0.8125rem;
+}
+
+/* ================================================================
+   DASHBOARD READABILITY SYSTEM
+   KPI cards, analytics surfaces, chart containers
+   ================================================================ */
+
+/* KPI value — must pop immediately */
+.kpi-value {
+  color: #f1f5f9;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* KPI label */
+.kpi-label {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* KPI delta/badge */
+.kpi-delta-up   { color: #34d399; }
+.kpi-delta-down { color: #f87171; }
+
+/* Chart container — lifted background for visibility */
+.chart-surface {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 8px 24px rgba(0,0,0,0.30);
+}
+
+/* ================================================================
+   BUTTON SYSTEM AMPLIFICATION
+   Stronger separation, clearer hover, premium CTA energy
+   ================================================================ */
+
+/* Primary button surface — stronger glow on hover */
+.btn-primary-glow:hover {
+  box-shadow:
+    0 8px 24px rgba(99,102,241,0.40),
+    0 2px 8px rgba(0,0,0,0.30),
+    0 0 0 1px rgba(99,102,241,0.45);
+}
+
+/* ================================================================
+   SECTION SEPARATION SYSTEM
+   Alternating surface intensities for visual rhythm
+   ================================================================ */
+
+/* Light section variant — barely brighter than canvas */
+.section-alt {
+  background: rgba(255,255,255,0.025);
+  border-top:    1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Prominent section — elevated band */
+.section-elevated {
+  background: rgba(99,102,241,0.04);
+  border-top:    1px solid rgba(99,102,241,0.10);
+  border-bottom: 1px solid rgba(99,102,241,0.10);
+}
+
+/* ================================================================
+   GLASSMORPHISM DEPTH LAYERS
+   Inspired by Linear / Arc / Framer frosted glass language
+   ================================================================ */
+
+/* Layer 0 — canvas */
+.depth-0 { background: var(--bg-canvas); }
+
+/* Layer 1 — panel (slightly lifted) */
+.depth-1 {
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.09) inset, 0 4px 16px rgba(0,0,0,0.28);
+}
+
+/* Layer 2 — card (primary content surface) */
+.depth-2 {
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 8px 28px rgba(0,0,0,0.38);
+}
+
+/* Layer 3 — floating / modal / dropdown */
+.depth-3 {
+  background: rgba(255,255,255,0.11);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 16px 48px rgba(0,0,0,0.50);
+}
+
+/* Edge highlight — premium top shimmer on any glass surface */
+.glass-edge-top::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.15) 30%,
+    rgba(255,255,255,0.22) 50%,
+    rgba(255,255,255,0.15) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
