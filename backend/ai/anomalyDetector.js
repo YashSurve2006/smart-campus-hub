@@ -55,23 +55,36 @@ export async function scanForAnomalies(departmentId, semester) {
 async function detectDuplicateMarks(departmentId, semester) {
   const subjectResults = await query(
     `SELECT
-       sub.code, sub.name, r.subject_id,
+       sub.code,
+       sub.name,
+       r.subject_id,
        r.marks_obtained,
        COUNT(*) AS occurrence_count,
        COUNT(*) * 100.0 / NULLIF(
-         (SELECT COUNT(*) FROM results r2
-          JOIN students s2 ON s2.id = r2.student_id
-          WHERE r2.subject_id = r.subject_id AND r2.semester = r.semester
-            AND s2.department_id = ?), 0
-       )                                                                     AS occurrence_pct
+         (
+           SELECT COUNT(*)
+           FROM results r2
+           JOIN students s2 ON s2.id = r2.student_id
+           WHERE r2.subject_id = r.subject_id
+             AND r2.semester = ?
+             AND s2.department_id = ?
+         ),
+         0
+       ) AS occurrence_pct
      FROM results r
      JOIN subjects sub ON sub.id = r.subject_id
      JOIN students s ON s.id = r.student_id
-     WHERE s.department_id = ? AND r.semester = ?
-     GROUP BY r.subject_id, r.marks_obtained, sub.code, sub.name
-     HAVING occurrence_count >= 3 AND occurrence_pct >= 30
+     WHERE s.department_id = ?
+       AND r.semester = ?
+     GROUP BY
+       sub.code,
+       sub.name,
+       r.subject_id,
+       r.marks_obtained
+     HAVING occurrence_count >= 3
+       AND occurrence_pct >= 30
      ORDER BY occurrence_pct DESC`,
-    [departmentId, departmentId, semester]
+    [semester, departmentId, departmentId, semester]
   );
 
   return subjectResults.map((row) => ({
@@ -82,7 +95,8 @@ async function detectDuplicateMarks(departmentId, semester) {
     detail: `${row.occurrence_count} students scored exactly ${row.marks_obtained} marks (${Number(row.occurrence_pct).toFixed(1)}% of class).`,
     affectedCount: row.occurrence_count,
     value: row.marks_obtained,
-    recommendation: 'Review mark entry for possible copy/paste errors. Cross-check answer scripts.',
+    recommendation:
+      'Review mark entry for possible copy/paste errors. Cross-check answer scripts.',
   }));
 }
 
@@ -99,19 +113,24 @@ async function detectOutlierMarks(departmentId, semester) {
   const subjectStats = await query(
     `SELECT
        r.subject_id,
-       sub.code, sub.name,
-       ROUND(AVG(r.marks_obtained), 2)  AS mean_marks,
-       ROUND(STD(r.marks_obtained), 2)  AS std_marks,
-       COUNT(*)                          AS count
+       sub.code,
+       sub.name,
+       ROUND(AVG(r.marks_obtained), 2) AS mean_marks,
+       ROUND(STD(r.marks_obtained), 2) AS std_marks,
+       COUNT(*) AS count
      FROM results r
      JOIN subjects sub ON sub.id = r.subject_id
      JOIN students s ON s.id = r.student_id
-     WHERE s.department_id = ? AND r.semester = ?
-     GROUP BY r.subject_id, sub.code, sub.name
-     HAVING count >= 5 AND std_marks > 0`,
+     WHERE s.department_id = ? 
+       AND r.semester = ?
+     GROUP BY 
+       r.subject_id,
+       sub.code,
+       sub.name
+     HAVING count >= 5 
+       AND std_marks > 0`,
     [departmentId, semester]
   );
-
   const outliers = [];
 
   for (const subj of subjectStats) {

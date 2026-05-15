@@ -343,7 +343,7 @@ export default function StudentAIPortal() {
             <div className="space-y-2">
               {data.weakSubjects.map((s, i) => (
                 <motion.div
-                  key={s.code}
+                  key={`${s.code}-${i}`}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}
@@ -372,7 +372,7 @@ export default function StudentAIPortal() {
             <div className="space-y-2">
               {data.strongSubjects.map((s, i) => (
                 <motion.div
-                  key={s.code}
+                  key={`${s.code}-${i}`}
                   initial={{ opacity: 0, x: 8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}

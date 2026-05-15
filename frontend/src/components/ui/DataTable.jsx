@@ -47,7 +47,7 @@ function TableEmpty({ icon: Icon = Inbox, message = 'No data found', sub, onClea
 function Pagination({ page, totalPages, onPage, total, pageSize }) {
   if (totalPages <= 1) return null;
   const from = (page - 1) * pageSize + 1;
-  const to   = Math.min(page * pageSize, total);
+  const to = Math.min(page * pageSize, total);
 
   return (
     <div className="flex items-center justify-between border-t border-white/[0.05] px-5 py-3.5">
@@ -97,26 +97,26 @@ function Pagination({ page, totalPages, onPage, total, pageSize }) {
 }
 
 export function DataTable({
-  columns        = [],
-  rows           = [],
-  loading        = false,
-  emptyMessage   = 'No data found',
+  columns = [],
+  rows = [],
+  loading = false,
+  emptyMessage = 'No data found',
   emptyIcon,
   emptySub,
-  rowKey         = 'id',
+  rowKey = 'id',
   onRowClick,
-  className      = '',
+  className = '',
   tableClassName = '',
-  skeletonRows   = 5,
-  searchable     = false,
+  skeletonRows = 5,
+  searchable = false,
   searchPlaceholder = 'Search…',
-  pageSize       = 20,
+  pageSize = 20,
   title,
   titleIcon: TitleIcon,
   actions,
 }) {
   const [search, setSearch] = useState('');
-  const [page,   setPage]   = useState(1);
+  const [page, setPage] = useState(1);
 
   /* Client-side search */
   const filtered = useMemo(() => {
@@ -132,7 +132,7 @@ export function DataTable({
 
   /* Pagination */
   const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated  = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   function handleSearch(val) {
     setSearch(val);
@@ -225,7 +225,7 @@ export function DataTable({
 
           {/* Body */}
           <tbody>
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout">
               {paginated.length > 0 ? (
                 paginated.map((row, i) => (
                   <motion.tr

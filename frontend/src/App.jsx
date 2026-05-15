@@ -162,7 +162,7 @@ export default function App() {
       <ThemeSync />
 
       {/* Animated Route Container */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
 
         {/* Lazy Route Fallback */}
         <Suspense fallback={<AppLoader />}>

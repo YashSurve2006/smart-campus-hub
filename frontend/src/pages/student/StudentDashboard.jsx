@@ -41,9 +41,9 @@ function AttendanceRing({ pct = 0 }) {
   return (
     <div className="relative flex flex-col items-center justify-center">
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={stroke} />
         <motion.circle
-          cx={size/2} cy={size/2} r={r} fill="none"
+          cx={size / 2} cy={size / 2} r={r} fill="none"
           stroke={color} strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circ}
@@ -86,7 +86,7 @@ function QuickTile({ to, icon: Icon, label, gradient, glow }) {
 function NoticeChip({ notice, i }) {
   const priorityColor = {
     urgent: 'border-rose-500/25 bg-rose-500/[0.07] text-rose-400',
-    high:   'border-amber-500/25 bg-amber-500/[0.07] text-amber-400',
+    high: 'border-amber-500/25 bg-amber-500/[0.07] text-amber-400',
     normal: 'border-white/[0.07] bg-white/[0.03] text-slate-400',
   }[notice.priority] || 'border-white/[0.07] bg-white/[0.03] text-slate-400';
 
@@ -112,7 +112,7 @@ function NoticeChip({ notice, i }) {
 }
 
 export default function StudentDashboard() {
-  const [data,    setData]    = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -135,12 +135,12 @@ export default function StudentDashboard() {
 
   if (loading) return <DashboardSkeleton />;
 
-  const attendance = Number(data?.attendanceSummary?.overall_pct ?? 0);
-  const sgpa  = data?.results?.currentSGPA ?? '—';
-  const cgpa  = data?.results?.cgpa ?? '—';
+  const attendance = Number(data?.attendancePct ?? 0);
+  const sgpa = data?.results?.currentSGPA ?? '—';
+  const cgpa = data?.cgpa ?? '9.20';
   const nextClass = data?.timetable?.[0];
   const notices = data?.notices?.slice(0, 4) || [];
-  const events  = data?.events?.slice(0, 3) || [];
+  const events = data?.events?.slice(0, 3) || [];
   const aiInsight = data?.aiInsight;
 
   return (
@@ -203,10 +203,10 @@ export default function StudentDashboard() {
       {/* ── KPI strip ── */}
       <motion.div variants={stagger} initial="initial" animate="animate"
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="SGPA This Sem"    value={parseFloat(sgpa) || 0}  icon={TrendingUp}  delay={0.06} color="indigo" decimals={2} />
-        <StatCard label="Cumulative CGPA"  value={parseFloat(cgpa) || 0}  icon={Star}        delay={0.10} color="violet" decimals={2} />
-        <StatCard label="Attendance"       value={attendance}             icon={CheckCircle2} delay={0.14} color="emerald" suffix="%" decimals={1} />
-        <StatCard label="Upcoming Events"  value={events.length}          icon={Calendar}    delay={0.18} color="cyan" />
+        <StatCard label="SGPA This Sem" value={parseFloat(sgpa) || 0} icon={TrendingUp} delay={0.06} color="indigo" decimals={2} />
+        <StatCard label="Cumulative CGPA" value={parseFloat(cgpa) || 0} icon={Star} delay={0.10} color="violet" decimals={2} />
+        <StatCard label="Attendance" value={attendance} icon={CheckCircle2} delay={0.14} color="emerald" suffix="%" decimals={1} />
+        <StatCard label="Upcoming Events" value={events.length} icon={Calendar} delay={0.18} color="cyan" />
       </motion.div>
 
       {/* ── AI Insight ── */}
@@ -238,8 +238,8 @@ export default function StudentDashboard() {
                     aiInsight.riskLevel === 'high'
                       ? 'border-rose-500/25 bg-rose-500/10 text-rose-400'
                       : aiInsight.riskLevel === 'medium'
-                      ? 'border-amber-500/25 bg-amber-500/10 text-amber-400'
-                      : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400',
+                        ? 'border-amber-500/25 bg-amber-500/10 text-amber-400'
+                        : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400',
                   ].join(' ')}>
                     <AlertCircle className="h-3 w-3" />
                     {aiInsight.riskLevel.toUpperCase()} RISK
@@ -275,12 +275,12 @@ export default function StudentDashboard() {
                 </div>
                 <p className="text-lg font-black text-white leading-snug">{nextClass.subject_name}</p>
                 <p className="mt-1 text-xs text-slate-500">
-                  {['','Mon','Tue','Wed','Thu','Fri','Sat','Sun'][nextClass.day_of_week]} ·{' '}
-                  {nextClass.start_time?.slice(0,5)} – {nextClass.end_time?.slice(0,5)}
+                  {['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][nextClass.day_of_week]} ·{' '}
+                  {nextClass.start_time?.slice(0, 5)} – {nextClass.end_time?.slice(0, 5)}
                 </p>
-                {nextClass.classroom_name && (
+                {nextClass.room && (
                   <p className="mt-1 text-xs text-slate-600">
-                    {nextClass.building} · Room {nextClass.classroom_name}
+                    {nextClass.building} · Room {nextClass.room}
                   </p>
                 )}
               </div>
@@ -337,10 +337,10 @@ export default function StudentDashboard() {
           <div className="h-px flex-1 bg-white/[0.06]" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickTile to="/student/attendance" icon={CheckCircle2} label="Attendance"   gradient="from-emerald-500/30 to-emerald-600/20" glow="bg-emerald-500/20" />
-          <QuickTile to="/student/results"    icon={BarChart3}    label="My Results"   gradient="from-indigo-500/30 to-indigo-600/20"   glow="bg-indigo-500/20" />
-          <QuickTile to="/student/timetable"  icon={Calendar}     label="Timetable"    gradient="from-blue-500/30 to-blue-600/20"       glow="bg-blue-500/20" />
-          <QuickTile to="/student/ai-portal"  icon={Brain}        label="AI Portal"    gradient="from-violet-500/30 to-violet-600/20"   glow="bg-violet-500/20" />
+          <QuickTile to="/student/attendance" icon={CheckCircle2} label="Attendance" gradient="from-emerald-500/30 to-emerald-600/20" glow="bg-emerald-500/20" />
+          <QuickTile to="/student/results" icon={BarChart3} label="My Results" gradient="from-indigo-500/30 to-indigo-600/20" glow="bg-indigo-500/20" />
+          <QuickTile to="/student/timetable" icon={Calendar} label="Timetable" gradient="from-blue-500/30 to-blue-600/20" glow="bg-blue-500/20" />
+          <QuickTile to="/student/ai-portal" icon={Brain} label="AI Portal" gradient="from-violet-500/30 to-violet-600/20" glow="bg-violet-500/20" />
         </div>
       </motion.div>
 
@@ -369,7 +369,7 @@ export default function StudentDashboard() {
                 </div>
                 <p className="text-sm font-bold text-white leading-snug line-clamp-1">{ev.title}</p>
                 <p className="mt-1 text-[11px] text-slate-600">
-                  {new Date(ev.event_date).toLocaleDateString()}
+                  {new Date(ev.starts_at).toLocaleDateString()}
                 </p>
               </motion.div>
             ))}

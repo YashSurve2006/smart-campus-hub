@@ -415,7 +415,7 @@ export default function AdminAICommandCenter() {
       </motion.div>
 
       {/* ── TAB CONTENT ── */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 8 }}
