@@ -264,9 +264,8 @@ export default function FacultyAIAssistant() {
   const [loadingDifficulty, setLoadingDifficulty] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/departments')
-      .then((r) => r.json())
-      .then((d) => setDepartments(d.departments || []))
+    api.get('/departments')
+      .then(({ data }) => setDepartments(data.departments || []))
       .catch(console.error);
   }, []);
 
@@ -415,11 +414,10 @@ export default function FacultyAIAssistant() {
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
-                activeTab === id
+              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${activeTab === id
                   ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                   : 'text-slate-500 hover:text-slate-300'
-              }`}
+                }`}
             >
               <Icon className="h-3.5 w-3.5" />
               {label}

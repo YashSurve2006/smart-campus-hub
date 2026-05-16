@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 
 import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
 
 import {
   getFacultyResultAnalytics,
@@ -162,9 +163,7 @@ export default function FacultyResultsPage() {
 
   async function loadDepartments() {
     try {
-      const res = await fetch('http://localhost:5000/api/departments');
-      const data = await res.json();
-
+      const { data } = await api.get('/departments');
       setDepartments(data.departments || []);
     } catch (err) {
       console.error(err);
