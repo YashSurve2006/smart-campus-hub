@@ -20,7 +20,7 @@ export function NoticeAttachmentManager({ noticeId, dark = false, onUpdated, rea
     if (!noticeId) return;
     setLoading(true);
     try {
-      const { data } = await api.get(`/api/notices/${noticeId}`);
+      const { data } = await api.get(`/notices/${noticeId}`);
       setAttachments(data.attachments || []);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Could not load attachments');
@@ -35,7 +35,7 @@ export function NoticeAttachmentManager({ noticeId, dark = false, onUpdated, rea
 
   async function downloadFile(att) {
     try {
-      const res = await api.get(`/api/notices/${noticeId}/attachments/${att.id}/file`, {
+      const res = await api.get(`/notices/${noticeId}/attachments/${att.id}/file`, {
         responseType: 'blob',
       });
       const url = URL.createObjectURL(res.data);
@@ -59,7 +59,7 @@ export function NoticeAttachmentManager({ noticeId, dark = false, onUpdated, rea
       return;
     }
     try {
-      const res = await api.get(`/api/notices/${noticeId}/attachments/${att.id}/file`, {
+      const res = await api.get(`/notices/${noticeId}/attachments/${att.id}/file`, {
         responseType: 'blob',
       });
       const url = URL.createObjectURL(res.data);
@@ -78,7 +78,7 @@ export function NoticeAttachmentManager({ noticeId, dark = false, onUpdated, rea
     try {
       const fd = new FormData();
       for (const f of files) fd.append('files', f);
-      await api.post(`/api/notices/${noticeId}/attachments`, fd);
+      await api.post(`/notices/${noticeId}/attachments`, fd);
       toast.success('Files attached');
       await refresh();
       onUpdated?.();

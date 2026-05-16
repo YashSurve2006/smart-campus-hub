@@ -19,10 +19,10 @@ import { Orb, GridTexture, fadeUp } from '../../utils/animations';
 /* ── Time ago helper ── */
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
-  const mins  = Math.floor(diff / 60000);
+  const mins = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
-  const days  = Math.floor(hours / 24);
-  if (mins < 1)  return 'just now';
+  const days = Math.floor(hours / 24);
+  if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;
   if (hours < 24) return `${hours}h ago`;
   return `${days}d ago`;
@@ -31,12 +31,12 @@ function timeAgo(dateStr) {
 /* ── Notification type icon/color ── */
 function typeStyle(type) {
   const map = {
-    notice:      { color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' },
-    attendance:  { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-    result:      { color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
-    event:       { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-    alert:       { color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
-    default:     { color: 'text-slate-400', bg: 'bg-slate-700/30 border-slate-700/50' },
+    notice: { color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20' },
+    attendance: { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+    result: { color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
+    event: { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+    alert: { color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
+    default: { color: 'text-slate-400', bg: 'bg-slate-700/30 border-slate-700/50' },
   };
   return map[type] || map.default;
 }
@@ -65,7 +65,7 @@ function NotifCard({ n, onRead, index }) {
     if (!isUnread) return;
     setReading(true);
     try {
-      await api.post(`/api/notifications/${n.id}/read`);
+      await api.post(`/notifications/${n.id}/read`);
       onRead(n.id);
     } catch {
       toast.error('Could not mark as read');
@@ -138,14 +138,14 @@ function NotifCard({ n, onRead, index }) {
 }
 
 export default function NotificationsPage() {
-  const [items,   setItems]   = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [markingAll, setMarkingAll] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await api.get('/api/notifications');
+      const { data } = await api.get('/notifications');
       setItems(data.notifications || []);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Could not load notifications');
@@ -168,7 +168,7 @@ export default function NotificationsPage() {
   async function readAll() {
     try {
       setMarkingAll(true);
-      await api.post('/api/notifications/read-all');
+      await api.post('/notifications/read-all');
       setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
       toast.success('All notifications marked as read');
     } catch {

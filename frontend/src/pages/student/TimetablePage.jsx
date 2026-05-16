@@ -29,12 +29,12 @@ function SlotCard({ entry, index }) {
   const now = new Date();
   const today = now.getDay() || 7; // JS Sunday=0, convert to 7
   const [startH, startM] = (entry.start_time || '0:0').split(':').map(Number);
-  const [endH,   endM]   = (entry.end_time   || '0:0').split(':').map(Number);
+  const [endH, endM] = (entry.end_time || '0:0').split(':').map(Number);
   const startMin = startH * 60 + startM;
-  const endMin   = endH   * 60 + endM;
-  const nowMin   = now.getHours() * 60 + now.getMinutes();
+  const endMin = endH * 60 + endM;
+  const nowMin = now.getHours() * 60 + now.getMinutes();
   // Is this class happening right now (only meaningful if today matches)
-  const isLive   = nowMin >= startMin && nowMin <= endMin;
+  const isLive = nowMin >= startMin && nowMin <= endMin;
 
   return (
     <motion.div
@@ -109,15 +109,15 @@ function SlotCard({ entry, index }) {
 }
 
 export default function TimetablePage() {
-  const user    = useAuthStore((s) => s.user);
-  const [day,     setDay]     = useState(() => {
+  const user = useAuthStore((s) => s.user);
+  const [day, setDay] = useState(() => {
     const d = new Date().getDay();
     return d === 0 ? 7 : d; // default to today
   });
-  const [entries,  setEntries]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const deptId   = user?.profile?.departmentId;
+  const deptId = user?.profile?.departmentId;
   const semester = user?.profile?.semester;
 
   useEffect(() => {
@@ -125,7 +125,7 @@ export default function TimetablePage() {
     setLoading(true);
     (async () => {
       try {
-        const { data } = await api.get('/api/timetable', {
+        const { data } = await api.get('/timetable', {
           params: { departmentId: deptId, semester, dayOfWeek: day },
         });
         setEntries(data.entries || []);

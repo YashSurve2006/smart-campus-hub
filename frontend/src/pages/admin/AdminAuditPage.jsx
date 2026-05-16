@@ -137,7 +137,7 @@ export default function AdminAuditPage() {
   async function load(p = page, silent = false) {
     try {
       if (!silent) setLoading(true); else setRefreshing(true);
-      const { data } = await api.get('/api/admin/audit-logs', { params: { page: p, limit: 25 } });
+      const { data } = await api.get('/admin/audit-logs', { params: { page: p, limit: 25 } });
       setLogs(data.logs || []);
       setPages(data.pagination?.pages || 1);
       setPage(data.pagination?.page || 1);

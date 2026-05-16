@@ -239,8 +239,8 @@ export default function FileManagerPage() {
     try {
       if (!silent) setLoading(true); else setRefreshing(true);
       const [f, s] = await Promise.all([
-        api.get('/api/file-registry/me'),
-        api.get('/api/file-registry/me/stats'),
+        api.get('/file-registry/me'),
+        api.get('/file-registry/me/stats'),
       ]);
       setFiles(f.data.files || []);
       setStats(s.data.stats || []);
@@ -257,7 +257,7 @@ export default function FileManagerPage() {
   async function remove(id) {
     try {
       setDeletingId(id);
-      await api.delete(`/api/file-registry/me/${id}`);
+      await api.delete(`/file-registry/me/${id}`);
       toast.success('Removed');
       await load(true);
     } catch (e) {
@@ -309,8 +309,8 @@ export default function FileManagerPage() {
                   key={mode}
                   onClick={() => setViewMode(mode)}
                   className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-all ${viewMode === mode
-                      ? 'bg-teal-500/20 text-teal-300'
-                      : 'text-slate-500 hover:text-slate-300'
+                    ? 'bg-teal-500/20 text-teal-300'
+                    : 'text-slate-500 hover:text-slate-300'
                     }`}
                 >
                   <Icon className="h-3.5 w-3.5" />

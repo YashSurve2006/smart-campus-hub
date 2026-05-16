@@ -117,7 +117,7 @@ export default function StudentDashboard() {
 
   const load = useCallback(async () => {
     try {
-      const res = await api.get('/api/dashboard/student');
+      const res = await api.get('/dashboard/student');
       setData(res.data.dashboard ?? res.data);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Could not load dashboard');

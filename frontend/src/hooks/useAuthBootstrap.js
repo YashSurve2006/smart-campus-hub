@@ -17,7 +17,7 @@ export function useAuthBootstrap() {
         return;
       }
       try {
-        const { data } = await api.get('/api/auth/me');
+        const { data } = await api.get('/auth/me');
         if (!cancelled) setUser(data.user);
       } catch {
         if (!cancelled) logout();

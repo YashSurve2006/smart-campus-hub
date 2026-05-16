@@ -18,21 +18,21 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { Orb, GridTexture, fadeUp } from '../../utils/animations';
 
 const CATEGORIES = [
-  { id: '',         label: 'All',       icon: Layers },
+  { id: '', label: 'All', icon: Layers },
   { id: 'building', label: 'Buildings', icon: Building2 },
   { id: 'facility', label: 'Facilities', icon: Zap },
-  { id: 'sports',   label: 'Sports',    icon: Dumbbell },
-  { id: 'hostel',   label: 'Hostels',   icon: Home },
+  { id: 'sports', label: 'Sports', icon: Dumbbell },
+  { id: 'hostel', label: 'Hostels', icon: Home },
 ];
 
 /* ── Category pin color map ── */
 const CAT_PIN = {
   building: 'from-indigo-500 to-violet-500 shadow-indigo-500/40',
   facility: 'from-cyan-500 to-blue-500 shadow-cyan-500/40',
-  sports:   'from-emerald-500 to-teal-500 shadow-emerald-500/40',
-  hostel:   'from-amber-500 to-orange-500 shadow-amber-500/40',
+  sports: 'from-emerald-500 to-teal-500 shadow-emerald-500/40',
+  hostel: 'from-amber-500 to-orange-500 shadow-amber-500/40',
   landmark: 'from-rose-500 to-pink-500 shadow-rose-500/40',
-  default:  'from-slate-500 to-slate-600 shadow-slate-500/30',
+  default: 'from-slate-500 to-slate-600 shadow-slate-500/30',
 };
 
 function pinColor(cat) {
@@ -109,16 +109,16 @@ function PlaceCard({ place, index, onClick, selected }) {
 }
 
 export default function CampusPage() {
-  const [places,    setPlaces]    = useState([]);
-  const [search,    setSearch]    = useState('');
-  const [cat,       setCat]       = useState('');
-  const [loading,   setLoading]   = useState(true);
-  const [selected,  setSelected]  = useState(null);
+  const [places, setPlaces] = useState([]);
+  const [search, setSearch] = useState('');
+  const [cat, setCat] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get('/api/campus/places', {
+      const { data } = await api.get('/campus/places', {
         params: { search: search || undefined, category: cat || undefined },
       });
       setPlaces(data.places || []);
@@ -229,7 +229,7 @@ export default function CampusPage() {
                       ].join(' ')}
                       style={{
                         left: `${(Number(p.map_x || 0) / bounds.maxX) * 88 + 6}%`,
-                        top:  `${(Number(p.map_y || 0) / bounds.maxY) * 88 + 6}%`,
+                        top: `${(Number(p.map_y || 0) / bounds.maxY) * 88 + 6}%`,
                         zIndex: isSelected ? 10 : 1,
                       }}
                     >

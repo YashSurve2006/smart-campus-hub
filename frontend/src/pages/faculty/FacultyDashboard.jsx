@@ -107,12 +107,12 @@ function QuickTile({ to, icon: Icon, label, desc, gradient, glow }) {
 }
 
 export default function FacultyDashboard() {
-  const [data,    setData]    = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const res = await api.get('/api/dashboard/faculty');
+      const res = await api.get('/dashboard/faculty');
       setData(res.data.dashboard ?? res.data);
     } catch (e) {
       toast.error(e.response?.data?.message || 'Could not load dashboard');
@@ -130,9 +130,9 @@ export default function FacultyDashboard() {
 
   if (loading) return <DashboardSkeleton />;
 
-  const schedule  = data?.todaySchedule ?? data?.timetable ?? [];
+  const schedule = data?.todaySchedule ?? data?.timetable ?? [];
   const statsData = data?.stats ?? {};
-  const notices   = data?.recentNotices?.slice(0, 3) ?? [];
+  const notices = data?.recentNotices?.slice(0, 3) ?? [];
   const aiInsight = data?.aiInsight;
   const now = new Date();
   const currentHour = now.getHours();
@@ -140,7 +140,7 @@ export default function FacultyDashboard() {
   // Determine "live" slot (rough match by hour)
   function isLiveSlot(slot) {
     const start = parseInt(slot.start_time?.slice(0, 2) || '99');
-    const end   = parseInt(slot.end_time?.slice(0, 2)   || '0');
+    const end = parseInt(slot.end_time?.slice(0, 2) || '0');
     return currentHour >= start && currentHour < end;
   }
 
@@ -190,10 +190,10 @@ export default function FacultyDashboard() {
       {/* ── KPI strip ── */}
       <motion.div variants={stagger} initial="initial" animate="animate"
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Classes"       value={statsData.totalClasses    ?? 0} icon={Layers}        delay={0.06} color="blue" />
-        <StatCard label="Students Taught"     value={statsData.studentsCount   ?? 0} icon={Users}         delay={0.10} color="indigo" />
-        <StatCard label="Attendance Sessions" value={statsData.attendanceMarked ?? 0} icon={CheckSquare}   delay={0.14} color="cyan" />
-        <StatCard label="Notices Published"   value={statsData.noticesCount    ?? 0} icon={Bell}          delay={0.18} color="violet" />
+        <StatCard label="Total Classes" value={statsData.totalClasses ?? 0} icon={Layers} delay={0.06} color="blue" />
+        <StatCard label="Students Taught" value={statsData.studentsCount ?? 0} icon={Users} delay={0.10} color="indigo" />
+        <StatCard label="Attendance Sessions" value={statsData.attendanceMarked ?? 0} icon={CheckSquare} delay={0.14} color="cyan" />
+        <StatCard label="Notices Published" value={statsData.noticesCount ?? 0} icon={Bell} delay={0.18} color="violet" />
       </motion.div>
 
       {/* ── Schedule + Insight ── */}
@@ -299,10 +299,10 @@ export default function FacultyDashboard() {
           <div className="h-px flex-1 bg-white/[0.06]" />
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickTile to="/faculty/attendance" icon={CheckSquare}  label="Mark Attendance" desc="Record today's session"    gradient="from-emerald-500/30 to-emerald-600/20" glow="bg-emerald-500/20" />
-          <QuickTile to="/faculty/results"    icon={BarChart3}    label="Manage Results"  desc="Upload & review grades"    gradient="from-indigo-500/30 to-indigo-600/20"   glow="bg-indigo-500/20" />
-          <QuickTile to="/faculty/notices"    icon={Bell}         label="Post Notice"     desc="Broadcast announcements"   gradient="from-violet-500/30 to-violet-600/20"   glow="bg-violet-500/20" />
-          <QuickTile to="/faculty/timetable"  icon={Calendar}     label="Timetable"       desc="Manage your schedule"      gradient="from-blue-500/30 to-blue-600/20"       glow="bg-blue-500/20" />
+          <QuickTile to="/faculty/attendance" icon={CheckSquare} label="Mark Attendance" desc="Record today's session" gradient="from-emerald-500/30 to-emerald-600/20" glow="bg-emerald-500/20" />
+          <QuickTile to="/faculty/results" icon={BarChart3} label="Manage Results" desc="Upload & review grades" gradient="from-indigo-500/30 to-indigo-600/20" glow="bg-indigo-500/20" />
+          <QuickTile to="/faculty/notices" icon={Bell} label="Post Notice" desc="Broadcast announcements" gradient="from-violet-500/30 to-violet-600/20" glow="bg-violet-500/20" />
+          <QuickTile to="/faculty/timetable" icon={Calendar} label="Timetable" desc="Manage your schedule" gradient="from-blue-500/30 to-blue-600/20" glow="bg-blue-500/20" />
         </div>
       </motion.div>
     </div>

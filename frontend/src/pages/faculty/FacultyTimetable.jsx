@@ -33,7 +33,7 @@ function SlotRow({ entry, onDelete, index }) {
     if (!window.confirm(`Delete "${entry.subject_name}" slot?`)) return;
     setDeleting(true);
     try {
-      await api.delete(`/api/timetable/${entry.id}`);
+      await api.delete(`/timetable/${entry.id}`);
       toast.success('Slot removed');
       onDelete(entry.id);
     } catch (err) {
@@ -106,13 +106,13 @@ const EMPTY_FORM = {
 };
 
 export default function FacultyTimetable() {
-  const user       = useAuthStore((s) => s.user);
-  const [entries,    setEntries]    = useState([]);
+  const user = useAuthStore((s) => s.user);
+  const [entries, setEntries] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
-  const [form,       setForm]       = useState(EMPTY_FORM);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [listLoading, setListLoading] = useState(true);
-  const [showForm,   setShowForm]   = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const deptId = user?.profile?.departmentId;
 
@@ -123,7 +123,7 @@ export default function FacultyTimetable() {
 
   const loadEntries = useCallback(async () => {
     try {
-      const { data } = await api.get('/api/timetable', { params: { mine: 1 } });
+      const { data } = await api.get('/timetable', { params: { mine: 1 } });
       setEntries(data.entries || []);
     } finally {
       setListLoading(false);
@@ -134,15 +134,15 @@ export default function FacultyTimetable() {
     (async () => {
       const [, cls] = await Promise.all([
         loadEntries(),
-        api.get('/api/classrooms'),
+        api.get('/classrooms'),
       ]).catch(() => [null, { data: { classrooms: [] } }]);
       // cls is the second resolved value
-      api.get('/api/classrooms').then(({ data }) => {
+      api.get('/classrooms').then(({ data }) => {
         setClassrooms(data.classrooms || []);
         if (data.classrooms?.[0]) {
           setForm((f) => ({ ...f, classroomId: String(data.classrooms[0].id) }));
         }
-      }).catch(() => {});
+      }).catch(() => { });
     })();
   }, [loadEntries]);
 
@@ -150,15 +150,15 @@ export default function FacultyTimetable() {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await api.post('/api/timetable', {
+      await api.post('/timetable', {
         departmentId: Number(form.departmentId),
-        semester:     Number(form.semester),
-        dayOfWeek:    Number(form.dayOfWeek),
-        startTime:    `${form.startTime}:00`,
-        endTime:      `${form.endTime}:00`,
-        subjectName:  form.subjectName,
-        classroomId:  Number(form.classroomId),
-        section:      form.section,
+        semester: Number(form.semester),
+        dayOfWeek: Number(form.dayOfWeek),
+        startTime: `${form.startTime}:00`,
+        endTime: `${form.endTime}:00`,
+        subjectName: form.subjectName,
+        classroomId: Number(form.classroomId),
+        section: form.section,
       });
       toast.success('Slot created successfully');
       setForm((f) => ({ ...EMPTY_FORM, departmentId: f.departmentId, classroomId: f.classroomId }));
@@ -228,7 +228,7 @@ export default function FacultyTimetable() {
                   Semester
                 </label>
                 <select {...field('semester')} className="ent-select">
-                  {[1,2,3,4,5,6,7,8].map((s) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                     <option key={s} value={s}>Semester {s}</option>
                   ))}
                 </select>
@@ -241,7 +241,7 @@ export default function FacultyTimetable() {
                 </label>
                 <select {...field('dayOfWeek')} className="ent-select">
                   {DAYS.slice(1).map((d, i) => (
-                    <option key={i+1} value={i+1}>{d}</option>
+                    <option key={i + 1} value={i + 1}>{d}</option>
                   ))}
                 </select>
               </div>

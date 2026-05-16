@@ -133,7 +133,7 @@ export default function ManageNotices() {
   const [search, setSearch] = useState('');
 
   async function load() {
-    const { data } = await api.get('/api/notices', { params: { search } });
+    const { data } = await api.get('/notices', { params: { search } });
     setNotices(data.notices || []);
   }
 
@@ -141,7 +141,7 @@ export default function ManageNotices() {
 
   async function remove(id) {
     try {
-      await api.delete(`/api/notices/${id}`);
+      await api.delete(`/notices/${id}`);
       toast.success('Deleted');
       load();
     } catch (err) {

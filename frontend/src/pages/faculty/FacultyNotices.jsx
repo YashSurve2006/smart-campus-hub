@@ -21,7 +21,7 @@ import { Orb, GridTexture, fadeUp } from '../../utils/animations';
 function PriorityBadge({ priority }) {
   const map = {
     urgent: 'bg-rose-500/15 text-rose-400 border-rose-500/25',
-    high:   'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    high: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
     normal: 'bg-slate-700/40 text-slate-500 border-slate-700/40',
   };
   return (
@@ -34,7 +34,7 @@ function PriorityBadge({ priority }) {
 /* ── Target badge ── */
 function TargetBadge({ role }) {
   const map = {
-    all:     'bg-indigo-500/15 text-indigo-400 border-indigo-500/20',
+    all: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/20',
     student: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
     faculty: 'bg-violet-500/15 text-violet-400 border-violet-500/20',
   };
@@ -81,17 +81,17 @@ function NoticeCard({ notice, index }) {
 const EMPTY = { title: '', body: '', targetRole: 'all', noticeCategory: 'general', priority: 'normal' };
 
 export default function FacultyNotices() {
-  const [notices,   setNotices]   = useState([]);
-  const [search,    setSearch]    = useState('');
-  const [form,      setForm]      = useState(EMPTY);
-  const [loading,   setLoading]   = useState(true);
+  const [notices, setNotices] = useState([]);
+  const [search, setSearch] = useState('');
+  const [form, setForm] = useState(EMPTY);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [showForm,  setShowForm]  = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const searchRef = useRef(null);
 
   const load = useCallback(async () => {
     try {
-      const { data } = await api.get('/api/notices', { params: { search: search || undefined } });
+      const { data } = await api.get('/notices', { params: { search: search || undefined } });
       setNotices(data.notices || []);
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export default function FacultyNotices() {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await api.post('/api/notices', form);
+      await api.post('/notices', form);
       toast.success('Notice published successfully');
       setForm(EMPTY);
       setShowForm(false);

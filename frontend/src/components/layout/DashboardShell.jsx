@@ -376,7 +376,7 @@ export function DashboardShell() {
 
   async function handleLogout() {
     try {
-      await api.post('/api/auth/logout');
+      await api.post('/auth/logout');
     } catch {
       /* ignore */
     }

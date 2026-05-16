@@ -59,7 +59,7 @@ export default function StudentNoticesPage() {
     setLoading(true);
     try {
       const [listRes, unreadRes] = await Promise.all([
-        api.get('/api/notices', {
+        api.get('/notices', {
           params: {
             search: search || undefined,
             noticeCategory: category || undefined,
@@ -69,7 +69,7 @@ export default function StudentNoticesPage() {
             limit: 60,
           },
         }),
-        api.get('/api/notices/meta/unread-count'),
+        api.get('/notices/meta/unread-count'),
       ]);
       setNotices(listRes.data.notices || []);
       setUnreadCount(unreadRes.data.unreadCount ?? 0);
@@ -93,7 +93,7 @@ export default function StudentNoticesPage() {
   async function openDetail(n) {
     setDetail(n);
     try {
-      await api.post(`/api/notices/${n.id}/read`);
+      await api.post(`/notices/${n.id}/read`);
       load();
     } catch {
       /* ignore */
@@ -104,10 +104,10 @@ export default function StudentNoticesPage() {
     e?.stopPropagation();
     try {
       if (Number(n.is_favorite)) {
-        await api.delete(`/api/notices/${n.id}/favorite`);
+        await api.delete(`/notices/${n.id}/favorite`);
         toast.success('Removed from saved');
       } else {
-        await api.post(`/api/notices/${n.id}/favorite`);
+        await api.post(`/notices/${n.id}/favorite`);
         toast.success('Saved');
       }
       load();

@@ -12,15 +12,15 @@ import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
 export function NotificationCenter({ dark = true }) {
-  const user  = useAuthStore((s) => s.user);
-  const [open,  setOpen]  = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [marking, setMarking] = useState(false);
   const wrapRef = useRef(null);
 
   const load = useCallback(async () => {
     try {
-      const { data } = await api.get('/api/notifications');
+      const { data } = await api.get('/notifications');
       setItems(data.notifications || []);
     } catch { /* silent */ }
   }, []);
@@ -47,13 +47,13 @@ export function NotificationCenter({ dark = true }) {
 
   const prefix =
     user?.role === 'faculty' ? '/faculty'
-    : user?.role === 'admin' ? '/admin'
-    : '/student';
+      : user?.role === 'admin' ? '/admin'
+        : '/student';
 
   async function markOne(id, e) {
     e.stopPropagation();
     try {
-      await api.post(`/api/notifications/${id}/read`);
+      await api.post(`/notifications/${id}/read`);
       setItems((prev) =>
         prev.map((n) => n.id === id ? { ...n, read_at: new Date().toISOString() } : n)
       );
@@ -68,7 +68,7 @@ export function NotificationCenter({ dark = true }) {
     try {
       await Promise.all(
         items.filter((n) => !n.read_at).map((n) =>
-          api.post(`/api/notifications/${n.id}/read`)
+          api.post(`/notifications/${n.id}/read`)
         )
       );
       setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
@@ -123,8 +123,8 @@ export function NotificationCenter({ dark = true }) {
           <motion.div
             key="notif-panel"
             initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0,  scale: 1    }}
-            exit={{   opacity: 0, y: -8, scale: 0.97  }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             className={[
               'absolute right-0 z-50 mt-2',

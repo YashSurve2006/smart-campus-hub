@@ -172,14 +172,14 @@ export default function ProfilePage() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/api/users/activity');
+        const { data } = await api.get('/users/activity');
         setActivity(data.activity || []);
       } catch { /* */ }
     })();
   }, []);
 
   async function refreshMe() {
-    const { data } = await api.get('/api/auth/me');
+    const { data } = await api.get('/auth/me');
     setUser(data.user);
   }
 
@@ -187,7 +187,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      await api.patch('/api/users/profile', {
+      await api.patch('/users/profile', {
         firstName: form.firstName,
         lastName: form.lastName,
         phone: form.phone,
@@ -208,7 +208,7 @@ export default function ProfilePage() {
     const fd = new FormData();
     fd.append('avatar', file);
     try {
-      const { data } = await api.post('/api/users/avatar', fd);
+      const { data } = await api.post('/users/avatar', fd);
       setUser(data.user);
       toast.success('Avatar updated');
     } catch (err) {
@@ -222,7 +222,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setSavingPw(true);
     try {
-      await api.post('/api/users/change-password', {
+      await api.post('/users/change-password', {
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
       });

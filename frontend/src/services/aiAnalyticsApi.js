@@ -17,7 +17,7 @@ import api from './api';
  * current authenticated student.
  */
 export async function getStudentAIInsights() {
-  const { data } = await api.get('/api/ai-analytics/student/insights');
+  const { data } = await api.get('/ai-analytics/student/insights');
   return data;
 }
 
@@ -29,7 +29,7 @@ export async function getStudentAIInsights() {
  * Fetches moderation candidates and faculty recommendations.
  */
 export async function getFacultyModeration({ departmentId, semester }) {
-  const { data } = await api.get('/api/ai-analytics/faculty/moderation', {
+  const { data } = await api.get('/ai-analytics/faculty/moderation', {
     params: { departmentId, semester },
   });
   return data;
@@ -39,7 +39,7 @@ export async function getFacultyModeration({ departmentId, semester }) {
  * Fetches anomaly detection report for a department + semester.
  */
 export async function getFacultyAnomalies({ departmentId, semester }) {
-  const { data } = await api.get('/api/ai-analytics/faculty/anomalies', {
+  const { data } = await api.get('/ai-analytics/faculty/anomalies', {
     params: { departmentId, semester },
   });
   return data;
@@ -49,7 +49,7 @@ export async function getFacultyAnomalies({ departmentId, semester }) {
  * Fetches subject difficulty ranking for a department + semester.
  */
 export async function getSubjectDifficulty({ departmentId, semester }) {
-  const { data } = await api.get('/api/ai-analytics/faculty/subject-difficulty', {
+  const { data } = await api.get('/ai-analytics/faculty/subject-difficulty', {
     params: { departmentId, semester },
   });
   return data;
@@ -59,7 +59,7 @@ export async function getSubjectDifficulty({ departmentId, semester }) {
  * Fetches failure rate matrix (subject × exam_type) with student risk.
  */
 export async function getFailureMatrix({ departmentId, semester }) {
-  const { data } = await api.get('/api/ai-analytics/faculty/failure-matrix', {
+  const { data } = await api.get('/ai-analytics/faculty/failure-matrix', {
     params: { departmentId, semester },
   });
   return data;
@@ -73,7 +73,7 @@ export async function getFailureMatrix({ departmentId, semester }) {
  * Fetches university-wide KPIs, grade breakdown, semester trends.
  */
 export async function getAdminOverview() {
-  const { data } = await api.get('/api/ai-analytics/admin/overview');
+  const { data } = await api.get('/ai-analytics/admin/overview');
   return data;
 }
 
@@ -81,7 +81,7 @@ export async function getAdminOverview() {
  * Fetches department performance rankings.
  */
 export async function getDepartmentRankings() {
-  const { data } = await api.get('/api/ai-analytics/admin/department-rankings');
+  const { data } = await api.get('/ai-analytics/admin/department-rankings');
   return data;
 }
 
@@ -90,7 +90,7 @@ export async function getDepartmentRankings() {
  * @param {object} params - { departmentId?, semester?, limit? }
  */
 export async function getRiskStudents(params = {}) {
-  const { data } = await api.get('/api/ai-analytics/admin/risk-students', { params });
+  const { data } = await api.get('/ai-analytics/admin/risk-students', { params });
   return data;
 }
 
@@ -99,7 +99,7 @@ export async function getRiskStudents(params = {}) {
  * @param {object} params - { departmentId?, semester? }
  */
 export async function getSubjectHeatmap(params = {}) {
-  const { data } = await api.get('/api/ai-analytics/admin/heatmap', { params });
+  const { data } = await api.get('/ai-analytics/admin/heatmap', { params });
   return data;
 }
 
@@ -108,7 +108,7 @@ export async function getSubjectHeatmap(params = {}) {
  * @param {object} params - { departmentId?, semester?, limit? }
  */
 export async function getToppers(params = {}) {
-  const { data } = await api.get('/api/ai-analytics/admin/toppers', { params });
+  const { data } = await api.get('/ai-analytics/admin/toppers', { params });
   return data;
 }
 
@@ -116,7 +116,7 @@ export async function getToppers(params = {}) {
  * Fetches CGPA spike/drop detections.
  */
 export async function getCgpaSpikes({ departmentId }) {
-  const { data } = await api.get('/api/ai-analytics/admin/cgpa-spikes', {
+  const { data } = await api.get('/ai-analytics/admin/cgpa-spikes', {
     params: { departmentId },
   });
   return data;
@@ -131,6 +131,6 @@ export async function getCgpaSpikes({ departmentId }) {
  * @param {object} payload - { departmentId, semester, type }
  */
 export async function generateAIReport(payload) {
-  const { data } = await api.post('/api/ai-analytics/report/generate', payload);
+  const { data } = await api.post('/ai-analytics/report/generate', payload);
   return data;
 }

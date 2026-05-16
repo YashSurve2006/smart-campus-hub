@@ -28,7 +28,7 @@ export function AIAssistant({ dark }) {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/api/assistant/capabilities');
+        const { data } = await api.get('/assistant/capabilities');
         setCaps(data);
       } catch {
         /* */
@@ -57,7 +57,7 @@ export function AIAssistant({ dark }) {
     pushMessage('user', t);
     setLoading(true);
     try {
-      const { data } = await api.post('/api/assistant/chat', { message: t });
+      const { data } = await api.post('/assistant/chat', { message: t });
       pushMessage('assistant', data.reply, data.cards, data.provider);
     } catch {
       pushMessage('assistant', 'Request failed. Check your connection and try again.');
@@ -88,9 +88,8 @@ export function AIAssistant({ dark }) {
             className={`fixed bottom-0 right-0 top-0 z-[90] flex w-full max-w-lg flex-col border-l shadow-2xl backdrop-blur-2xl sm:top-16 ${shell}`}
           >
             <div
-              className={`flex items-center justify-between border-b px-4 py-3 ${
-                dark ? 'border-white/10' : 'border-slate-100'
-              }`}
+              className={`flex items-center justify-between border-b px-4 py-3 ${dark ? 'border-white/10' : 'border-slate-100'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-hub-purple" />
@@ -123,9 +122,8 @@ export function AIAssistant({ dark }) {
             <div className="flex min-h-0 flex-1">
               {showHistory && (
                 <div
-                  className={`w-36 shrink-0 space-y-1 border-r p-2 text-xs ${
-                    dark ? 'border-white/10 bg-slate-950/50' : 'border-slate-100 bg-slate-50/80'
-                  }`}
+                  className={`w-36 shrink-0 space-y-1 border-r p-2 text-xs ${dark ? 'border-white/10 bg-slate-950/50' : 'border-slate-100 bg-slate-50/80'
+                    }`}
                 >
                   <button
                     type="button"
@@ -139,9 +137,8 @@ export function AIAssistant({ dark }) {
                       key={s.id}
                       type="button"
                       onClick={() => setActiveId(s.id)}
-                      className={`w-full truncate rounded-lg px-2 py-1.5 text-left ${
-                        s.id === activeId ? 'bg-white/10 font-semibold' : 'opacity-80 hover:bg-white/5'
-                      }`}
+                      className={`w-full truncate rounded-lg px-2 py-1.5 text-left ${s.id === activeId ? 'bg-white/10 font-semibold' : 'opacity-80 hover:bg-white/5'
+                        }`}
                     >
                       {s.title}
                     </button>
@@ -159,15 +156,14 @@ export function AIAssistant({ dark }) {
                   {active.messages.map((msg, i) => (
                     <div
                       key={`${msg.at}-${i}`}
-                      className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                        msg.role === 'user'
+                      className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${msg.role === 'user'
                           ? dark
                             ? 'ml-6 bg-hub-blue/20'
                             : 'ml-6 bg-hub-blue/10'
                           : dark
                             ? 'mr-2 bg-white/5'
                             : 'mr-2 bg-slate-100/80'
-                      }`}
+                        }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.text}</p>
                       {msg.cards?.length > 0 && (
@@ -175,9 +171,8 @@ export function AIAssistant({ dark }) {
                           {msg.cards.map((c) => (
                             <div
                               key={c.title}
-                              className={`rounded-xl border px-2 py-2 text-xs ${
-                                dark ? 'border-white/10 bg-slate-950/60' : 'border-slate-200 bg-white'
-                              }`}
+                              className={`rounded-xl border px-2 py-2 text-xs ${dark ? 'border-white/10 bg-slate-950/60' : 'border-slate-200 bg-white'
+                                }`}
                             >
                               <p className="font-semibold text-hub-teal">{c.title}</p>
                               <ul className="mt-1 space-y-0.5 text-[11px] opacity-90">
@@ -208,9 +203,8 @@ export function AIAssistant({ dark }) {
                         key={q.label}
                         type="button"
                         onClick={() => send(q.message)}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold ${
-                          dark ? 'bg-white/10 text-slate-200' : 'bg-slate-100 text-slate-700'
-                        }`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold ${dark ? 'bg-white/10 text-slate-200' : 'bg-slate-100 text-slate-700'
+                          }`}
                       >
                         <Zap className="h-3 w-3" />
                         {q.label}
@@ -223,9 +217,8 @@ export function AIAssistant({ dark }) {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && send()}
                       placeholder="Ask the assistant…"
-                      className={`flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-hub-purple/40 ${
-                        dark ? 'border-white/10 bg-slate-950 text-white' : 'border-slate-200 bg-white'
-                      }`}
+                      className={`flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-hub-purple/40 ${dark ? 'border-white/10 bg-slate-950 text-white' : 'border-slate-200 bg-white'
+                        }`}
                     />
                     <button
                       type="button"

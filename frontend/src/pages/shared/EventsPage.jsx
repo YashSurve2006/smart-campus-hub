@@ -55,8 +55,8 @@ export default function EventsPage() {
       if (tab === 'live') params.status = 'live';
       if (tab === 'past') params.status = 'past';
       const [fe, ev] = await Promise.all([
-        api.get('/api/events/featured'),
-        api.get('/api/events', { params }),
+        api.get('/events/featured'),
+        api.get('/events', { params }),
       ]);
       setFeatured(fe.data.events || []);
       setEvents(ev.data.events || []);
@@ -74,7 +74,7 @@ export default function EventsPage() {
   async function register(id) {
     try {
       setPendingEventId(id);
-      await api.post(`/api/events/${id}/register`);
+      await api.post(`/events/${id}/register`);
       toast.success('Registered!');
       load();
     } catch (e) {
@@ -87,7 +87,7 @@ export default function EventsPage() {
   async function unregister(id) {
     try {
       setPendingEventId(id);
-      await api.delete(`/api/events/${id}/register`);
+      await api.delete(`/events/${id}/register`);
       toast.success('Removed registration');
       load();
     } catch (e) {
@@ -101,7 +101,7 @@ export default function EventsPage() {
     if (!confirm('Delete this event?')) return;
     try {
       setPendingEventId(id);
-      await api.delete(`/api/events/${id}`);
+      await api.delete(`/events/${id}`);
       toast.success('Deleted');
       load();
     } catch (e) {
@@ -115,7 +115,7 @@ export default function EventsPage() {
     if (!bannerFile) return form.bannerUrl || null;
     const fd = new FormData();
     fd.append('banner', bannerFile);
-    const { data } = await api.post('/api/events/upload/banner', fd, {
+    const { data } = await api.post('/events/upload/banner', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return data.url;
@@ -132,7 +132,7 @@ export default function EventsPage() {
     try {
       setCreating(true);
       const bannerUrl = await uploadBannerIfNeeded();
-      await api.post('/api/events', {
+      await api.post('/events', {
         ...form,
         startsAt: toSqlDatetime(form.startsAt),
         endsAt: toSqlDatetime(form.endsAt),
@@ -201,11 +201,10 @@ export default function EventsPage() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${
-              tab === t.id
+            className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition ${tab === t.id
                 ? 'bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900'
                 : 'border border-slate-200 bg-white/80 text-slate-600 dark:border-white/10 dark:bg-slate-900/50 dark:text-slate-300'
-            }`}
+              }`}
           >
             {t.label}
           </button>
@@ -222,9 +221,8 @@ export default function EventsPage() {
               transition={{ delay: i * 0.05 }}
             >
               <GlassCard
-                className={`relative overflow-hidden p-0 dark:border-white/10 dark:bg-slate-900/60 ${
-                  ev.banner_url ? '' : ''
-                }`}
+                className={`relative overflow-hidden p-0 dark:border-white/10 dark:bg-slate-900/60 ${ev.banner_url ? '' : ''
+                  }`}
               >
                 {ev.banner_url && (
                   <div

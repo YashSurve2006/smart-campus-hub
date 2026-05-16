@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
     (async () => {
       try {
         setLoading(true);
-        const { data: res } = await api.get('/api/analytics');
+        const { data: res } = await api.get('/analytics');
         if (!active) return;
         setData(res.analytics);
       } catch (e) {

@@ -85,7 +85,7 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
 
-      const s = await api.get('/api/dashboard/admin');
+      const s = await api.get('/dashboard/admin');
 
       const dashboard = s.data.dashboard || s.data;
       setStats(dashboard);

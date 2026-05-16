@@ -22,8 +22,8 @@ function todayISO() {
 function StatusSelect({ value, onChange }) {
   const colors = {
     present: 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10',
-    late:    'text-amber-400  border-amber-500/25  bg-amber-500/10',
-    absent:  'text-rose-400   border-rose-500/25   bg-rose-500/10',
+    late: 'text-amber-400  border-amber-500/25  bg-amber-500/10',
+    absent: 'text-rose-400   border-rose-500/25   bg-rose-500/10',
   };
   return (
     <select
@@ -46,7 +46,7 @@ function StatusSelect({ value, onChange }) {
 /* ── Avatar initials ── */
 function Avatar({ name }) {
   const initials = name?.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase() || '??';
-  const colors   = [
+  const colors = [
     'from-indigo-500 to-violet-500',
     'from-blue-500 to-cyan-500',
     'from-emerald-500 to-teal-500',
@@ -62,18 +62,18 @@ function Avatar({ name }) {
 }
 
 export default function FacultyAttendance() {
-  const [slots,          setSlots]          = useState([]);
-  const [slotId,         setSlotId]         = useState('');
-  const [date,           setDate]           = useState(todayISO());
-  const [roster,         setRoster]         = useState([]);
-  const [statusMap,      setStatusMap]      = useState({});
-  const [submitting,     setSubmitting]     = useState(false);
-  const [rosterLoading,  setRosterLoading]  = useState(false);
+  const [slots, setSlots] = useState([]);
+  const [slotId, setSlotId] = useState('');
+  const [date, setDate] = useState(todayISO());
+  const [roster, setRoster] = useState([]);
+  const [statusMap, setStatusMap] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [rosterLoading, setRosterLoading] = useState(false);
 
   // Load faculty slots
   useEffect(() => {
     (async () => {
-      const { data } = await api.get('/api/timetable', { params: { mine: 1 } });
+      const { data } = await api.get('/timetable', { params: { mine: 1 } });
       setSlots(data.entries || []);
       if (data.entries?.[0]) setSlotId(String(data.entries[0].id));
     })();
@@ -85,7 +85,7 @@ export default function FacultyAttendance() {
     setRosterLoading(true);
     (async () => {
       try {
-        const { data } = await api.get(`/api/attendance/roster/${slotId}`);
+        const { data } = await api.get(`/attendance/roster/${slotId}`);
         const students = data.students || [];
         setRoster(students);
         const init = {};
@@ -104,9 +104,9 @@ export default function FacultyAttendance() {
         studentId: s.id,
         status: statusMap[s.id] || 'present',
       }));
-      await api.post('/api/attendance/mark', {
+      await api.post('/attendance/mark', {
         timetableEntryId: Number(slotId),
-        attendanceDate:   date,
+        attendanceDate: date,
         records,
       });
       toast.success(`Attendance saved for ${roster.length} students`);
@@ -126,8 +126,8 @@ export default function FacultyAttendance() {
   }
 
   const presentCount = Object.values(statusMap).filter((s) => s === 'present').length;
-  const absentCount  = Object.values(statusMap).filter((s) => s === 'absent').length;
-  const lateCount    = Object.values(statusMap).filter((s) => s === 'late').length;
+  const absentCount = Object.values(statusMap).filter((s) => s === 'absent').length;
+  const lateCount = Object.values(statusMap).filter((s) => s === 'late').length;
 
   return (
     <div className="relative space-y-8">
@@ -214,8 +214,8 @@ export default function FacultyAttendance() {
         <motion.div {...fadeUp(0.1)} className="flex flex-wrap gap-2">
           {[
             { label: 'Present', count: presentCount, color: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' },
-            { label: 'Late',    count: lateCount,    color: 'border-amber-500/25  bg-amber-500/10  text-amber-400' },
-            { label: 'Absent',  count: absentCount,  color: 'border-rose-500/25   bg-rose-500/10   text-rose-400' },
+            { label: 'Late', count: lateCount, color: 'border-amber-500/25  bg-amber-500/10  text-amber-400' },
+            { label: 'Absent', count: absentCount, color: 'border-rose-500/25   bg-rose-500/10   text-rose-400' },
           ].map((p) => (
             <div key={p.label} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-bold backdrop-blur ${p.color}`}>
               {p.count} {p.label}

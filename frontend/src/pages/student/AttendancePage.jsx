@@ -17,13 +17,13 @@ import { CheckCircle2, XCircle, Clock, CalendarDays, Percent } from 'lucide-reac
 function StatusBadge({ status }) {
   const map = {
     present: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-    late:    'bg-amber-500/15  text-amber-400  border-amber-500/20',
-    absent:  'bg-rose-500/15   text-rose-400   border-rose-500/20',
+    late: 'bg-amber-500/15  text-amber-400  border-amber-500/20',
+    absent: 'bg-rose-500/15   text-rose-400   border-rose-500/20',
   };
   const icons = {
     present: <CheckCircle2 className="h-3 w-3" />,
-    late:    <Clock className="h-3 w-3" />,
-    absent:  <XCircle className="h-3 w-3" />,
+    late: <Clock className="h-3 w-3" />,
+    absent: <XCircle className="h-3 w-3" />,
   };
   return (
     <span
@@ -37,7 +37,7 @@ function StatusBadge({ status }) {
 
 /* ── Attendance ring ── */
 function Ring({ pct }) {
-  const r    = 28;
+  const r = 28;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   const color = pct >= 75 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
@@ -73,8 +73,8 @@ export default function AttendancePage() {
     (async () => {
       try {
         const [s, r] = await Promise.all([
-          api.get('/api/attendance/me/summary'),
-          api.get('/api/attendance/me'),
+          api.get('/attendance/me/summary'),
+          api.get('/attendance/me'),
         ]);
         setSummary(s.data.summary);
         setRecords(r.data.records || []);
@@ -84,7 +84,7 @@ export default function AttendancePage() {
     })();
   }, []);
 
-  const pct     = Number(summary?.percentage) || 0;
+  const pct = Number(summary?.percentage) || 0;
   const attColor = pct >= 75 ? 'text-emerald-400' : pct >= 60 ? 'text-amber-400' : 'text-rose-400';
 
   const columns = [
@@ -168,8 +168,8 @@ export default function AttendancePage() {
         {/* Stat pills */}
         {[
           { label: 'Present', key: 'present', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle2 },
-          { label: 'Late',    key: 'late',    color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20',   icon: Clock },
-          { label: 'Absent',  key: 'absent',  color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/20',    icon: XCircle },
+          { label: 'Late', key: 'late', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Clock },
+          { label: 'Absent', key: 'absent', color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20', icon: XCircle },
         ].map((item, i) => {
           const Icon = item.icon;
           return (

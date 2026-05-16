@@ -46,7 +46,7 @@ export default function ManageFaculty() {
   const [search, setSearch] = useState('');
 
   async function load() {
-    const { data } = await api.get('/api/admin/faculty', { params: { search } });
+    const { data } = await api.get('/admin/faculty', { params: { search } });
     setRows(data.faculty || []);
   }
 
@@ -54,7 +54,7 @@ export default function ManageFaculty() {
 
   async function patch(userId, body) {
     try {
-      await api.patch(`/api/admin/faculty/${userId}`, body);
+      await api.patch(`/admin/faculty/${userId}`, body);
       toast.success('Updated');
       load();
     } catch (err) {
@@ -180,7 +180,7 @@ export default function ManageFaculty() {
                           whileTap={{ scale: 0.95 }}
                           onClick={async () => {
                             if (!confirm('Delete user?')) return;
-                            await api.delete(`/api/admin/users/${r.id}`);
+                            await api.delete(`/admin/users/${r.id}`);
                             toast.success('Removed');
                             load();
                           }}

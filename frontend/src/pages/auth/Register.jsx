@@ -35,7 +35,7 @@ export default function Register() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get('/api/departments');
+        const { data } = await api.get('/departments');
 
         setDepartments(data.departments || []);
 
@@ -83,7 +83,7 @@ export default function Register() {
         payload.designation = form.designation;
       }
 
-      const { data } = await api.post('/api/auth/register', payload);
+      const { data } = await api.post('/auth/register', payload);
 
       setAuth(data.user, data.token);
 
@@ -158,8 +158,8 @@ export default function Register() {
                 type="button"
                 onClick={() => setRole(r)}
                 className={`flex-1 rounded-xl py-3 text-sm font-semibold capitalize transition-all duration-300 ${role === r
-                    ? 'bg-white/[0.12] text-indigo-300 shadow-lg border border-indigo-500/30'
-                    : 'text-slate-500 hover:text-slate-300'
+                  ? 'bg-white/[0.12] text-indigo-300 shadow-lg border border-indigo-500/30'
+                  : 'text-slate-500 hover:text-slate-300'
                   }`}
               >
                 {r}

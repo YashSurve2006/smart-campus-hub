@@ -51,14 +51,14 @@ export default function EventDetailPage() {
   async function load() {
     setLoading(true);
     try {
-      const { data: res } = await api.get(`/api/events/${eventId}`);
+      const { data: res } = await api.get(`/events/${eventId}`);
       setData(res);
       setRegs([]);
       if (
         role === 'admin' ||
         (role === 'faculty' && Number(res.event?.created_by) === Number(user?.id))
       ) {
-        const r = await api.get(`/api/events/${eventId}/registrations`);
+        const r = await api.get(`/events/${eventId}/registrations`);
         setRegs(r.data.registrations || []);
       }
     } catch (e) {
@@ -71,7 +71,7 @@ export default function EventDetailPage() {
 
   async function downloadAttendees() {
     try {
-      const res = await api.get(`/api/events/${eventId}/registrations/export`, {
+      const res = await api.get(`/events/${eventId}/registrations/export`, {
         responseType: 'blob',
       });
       const url = URL.createObjectURL(res.data);
@@ -102,7 +102,7 @@ export default function EventDetailPage() {
 
   async function register() {
     try {
-      await api.post(`/api/events/${eventId}/register`);
+      await api.post(`/events/${eventId}/register`);
       toast.success('Registered');
       load();
     } catch (e) {
@@ -112,7 +112,7 @@ export default function EventDetailPage() {
 
   async function unregister() {
     try {
-      await api.delete(`/api/events/${eventId}/register`);
+      await api.delete(`/events/${eventId}/register`);
       toast.success('Unregistered');
       load();
     } catch (e) {
@@ -134,8 +134,8 @@ export default function EventDetailPage() {
   const canRegister = role === 'student' || role === 'faculty';
   const qrUrl = data.ticket?.registration_code
     ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-        `SCH-EVT:${ev.id}:${data.ticket.registration_code}`
-      )}`
+      `SCH-EVT:${ev.id}:${data.ticket.registration_code}`
+    )}`
     : null;
 
   return (
@@ -156,11 +156,10 @@ export default function EventDetailPage() {
             <div
               className="h-48 w-full bg-cover bg-center"
               style={{
-                backgroundImage: `url(${
-                  ev.banner_url.startsWith('http')
+                backgroundImage: `url(${ev.banner_url.startsWith('http')
                     ? ev.banner_url
                     : `${import.meta.env.VITE_API_BASE || ''}${ev.banner_url}`
-                })`,
+                  })`,
               }}
             />
           )}

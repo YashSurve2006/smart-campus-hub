@@ -48,7 +48,7 @@ export default function ManageStudents() {
   const [departments, setDepartments] = useState([]);
 
   async function load() {
-    const { data } = await api.get('/api/admin/students', {
+    const { data } = await api.get('/admin/students', {
       params: { search, departmentId: dept || undefined },
     });
     setRows(data.students || []);
@@ -56,7 +56,7 @@ export default function ManageStudents() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await api.get('/api/departments');
+      const { data } = await api.get('/departments');
       setDepartments(data.departments || []);
     })();
   }, []);
@@ -65,7 +65,7 @@ export default function ManageStudents() {
 
   async function patch(userId, patch) {
     try {
-      await api.patch(`/api/admin/students/${userId}`, patch);
+      await api.patch(`/admin/students/${userId}`, patch);
       toast.success('Updated');
       load();
     } catch (err) {
@@ -205,7 +205,7 @@ export default function ManageStudents() {
                           whileTap={{ scale: 0.95 }}
                           onClick={async () => {
                             if (!confirm('Delete user?')) return;
-                            await api.delete(`/api/admin/users/${r.id}`);
+                            await api.delete(`/admin/users/${r.id}`);
                             toast.success('Removed');
                             load();
                           }}
