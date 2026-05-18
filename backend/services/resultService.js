@@ -226,24 +226,31 @@ export async function getStudentResultPortal(userId) {
   const latestCgpa = semesters.length ? Number(semesters[semesters.length - 1].cgpa || 0) : 0;
   const latestSem = semesters.length ? Number(semesters[semesters.length - 1].semester) : null;
   let rank = null;
-  if (latestSem) {
-    const rankRows = await query(
-      `SELECT ranked.student_id, ranked.rnk
-       FROM (
-         SELECT t.student_id,
-                DENSE_RANK() OVER (ORDER BY t.avg_pct DESC) AS rnk
+  if (latestSem != null) {
+    const avgRow = await queryOne(
+      `SELECT AVG(r.percentage) AS avg_pct
+       FROM results r
+       JOIN students s ON s.id = r.student_id
+       WHERE r.student_id = ? AND s.department_id = ? AND r.semester = ?`,
+      [student.id, student.department_id, latestSem]
+    );
+    const avgPct = avgRow?.avg_pct != null ? Number(avgRow.avg_pct) : null;
+    if (avgPct != null && !Number.isNaN(avgPct)) {
+      const rankRow = await queryOne(
+        `SELECT COUNT(*) + 1 AS rnk
          FROM (
            SELECT r.student_id, AVG(r.percentage) AS avg_pct
            FROM results r
            JOIN students s ON s.id = r.student_id
            WHERE s.department_id = ? AND r.semester = ?
            GROUP BY r.student_id
-         ) t
-       ) ranked
-       WHERE ranked.student_id = ?`,
-      [student.department_id, latestSem, student.id]
-    );
-    rank = rankRows[0]?.rnk ?? null;
+         ) ranked
+         WHERE ranked.avg_pct > ?`,
+        [student.department_id, latestSem, avgPct]
+      );
+      const rnk = rankRow?.rnk != null ? Number(rankRow.rnk) : null;
+      rank = rnk != null && !Number.isNaN(rnk) ? rnk : null;
+    }
   }
   return {
     student,
