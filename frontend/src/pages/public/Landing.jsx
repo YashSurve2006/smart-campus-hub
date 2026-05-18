@@ -1,216 +1,344 @@
 /**
- * Landing.jsx — DARK-FIRST UPGRADE
+ * Landing.jsx — COSMIC AURORA DIGITAL CAMPUS
+ * Smart Campus Hub — Awwwards-level flagship landing page
  *
- * Root cause of invisible text:
- * 1. Root div had `bg-gradient-to-b from-slate-50 via-white` fighting the dark canvas
- * 2. All section cards used light-mode classes: bg-white/90, text-slate-900, text-slate-700
- * 3. Feature cards, bento grid, how-it-works, testimonials were all light-surface components
- *    dropped onto a dark background — producing invisible or near-invisible text
- *
- * Fix strategy (architecture UNCHANGED):
- * - Root div: transparent (PublicLayout provides the dark canvas)
- * - All `text-slate-900` → `text-white` or `text-slate-100`
- * - All `text-slate-700/800` → `text-slate-200` or `text-slate-300`
- * - All `text-slate-500/600` → `text-slate-400`
- * - All `bg-white/80-90` card surfaces → `bg-white/[0.07]` glass surfaces
- * - All `border-white/60` light borders → `border-white/[0.10]` dark borders
- * - Hero dashboard preview card (right side) keeps its light interior — it's a UI mockup
- * - Section backgrounds tuned for visual rhythm on dark canvas
+ * Design Identity: "Cosmic Aurora Digital Campus"
+ * Palette: electric magenta · aurora purple · warm coral · neon cyan
+ *          emerald glow · sunset orange · holographic gold
+ * Typography: Sora (headings) · DM Sans (body) · Space Grotesk (numbers/stats)
+ * Motion: Framer Motion — stagger reveals, floating, magnetic, parallax tilt
  */
 
 import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
 import {
-  ArrowRight, BellRing, CalendarClock, MapPinned, ShieldCheck, Sparkles,
-  Users, Zap, Activity, TrendingUp, Wifi, Lock, GraduationCap, BookOpen,
-  Settings2, ChevronRight, CheckCircle2, Globe, Database, Cpu, BarChart3,
-  Bell, Star,
+  motion, useMotionValue, useSpring, useTransform,
+  useScroll, useInView, animate,
+} from 'framer-motion';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import {
+  ArrowRight, Sparkles, Users, Zap, ShieldCheck, Globe, Database,
+  Cpu, Wifi, Lock, BarChart3, GraduationCap, BookOpen, Settings2,
+  CalendarClock, BellRing, MapPinned, Activity, TrendingUp,
+  Star, CheckCircle2, Bell, ChevronRight, Code2, Server,
+  Layers, GitBranch, Terminal, CloudUpload, Brain,
+  Atom, Radar, LineChart, Workflow, Eye,
 } from 'lucide-react';
-import { GlassCard } from '../../components/ui/GlassCard';
-import { Button } from '../../components/ui/Button';
 
-/* ─── Data (unchanged) ──────────────────────────────────────── */
+/* ─── Google Fonts injection ─────────────────────────────────── */
+const FontLoader = () => {
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.href =
+      'https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+  return null;
+};
 
-const features = [
+/* ─── CSS injection for custom font vars ─────────────────────── */
+const StyleInjector = () => {
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .sch-hero-h1 { font-family: 'Sora', sans-serif; }
+      .sch-heading  { font-family: 'Sora', sans-serif; }
+      .sch-body     { font-family: 'DM Sans', sans-serif; }
+      .sch-stat     { font-family: 'Space Grotesk', sans-serif; }
+
+      @keyframes aurora-drift {
+        0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+        33%  { transform: translate(3%, -2%) rotate(2deg) scale(1.04); }
+        66%  { transform: translate(-2%, 3%) rotate(-1deg) scale(0.97); }
+        100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+      }
+      @keyframes aurora-drift-2 {
+        0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+        40%  { transform: translate(-4%, 2%) rotate(-3deg) scale(1.06); }
+        80%  { transform: translate(3%, -3%) rotate(2deg) scale(0.95); }
+        100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+      }
+      @keyframes float-y {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-14px); }
+      }
+      @keyframes float-y-slow {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50%       { transform: translateY(-20px) rotate(4deg); }
+      }
+      @keyframes shine-sweep {
+        0%   { left: -80%; }
+        100% { left: 130%; }
+      }
+      @keyframes pulse-ring {
+        0%   { transform: scale(1); opacity: 0.6; }
+        100% { transform: scale(1.9); opacity: 0; }
+      }
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes spin-slow-rev {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(-360deg); }
+      }
+      @keyframes gradient-morph {
+        0%, 100% { background-position: 0% 50%; }
+        50%       { background-position: 100% 50%; }
+      }
+      @keyframes ticker-scroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .sch-primary-btn {
+        position: relative; overflow: hidden;
+        background: linear-gradient(135deg, #e040fb, #7c3aed, #06b6d4);
+        background-size: 200% 200%;
+        animation: gradient-morph 4s ease infinite;
+        box-shadow: 0 0 32px rgba(124,58,237,0.45), 0 4px 20px rgba(0,0,0,0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .sch-primary-btn::after {
+        content: '';
+        position: absolute; top: 0; left: -80%;
+        width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        transform: skewX(-20deg);
+        animation: shine-sweep 3s ease-in-out infinite;
+      }
+      .sch-primary-btn:hover {
+        transform: scale(1.04) translateY(-1px);
+        box-shadow: 0 0 52px rgba(124,58,237,0.6), 0 8px 32px rgba(0,0,0,0.5);
+      }
+      .sch-ghost-btn {
+        position: relative;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid transparent;
+        background-clip: padding-box;
+        transition: background 0.2s, transform 0.2s;
+      }
+      .sch-ghost-btn::before {
+        content: '';
+        position: absolute; inset: -1px;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(224,64,251,0.5), rgba(6,182,212,0.5));
+        z-index: -1;
+      }
+      .sch-ghost-btn:hover { background: rgba(255,255,255,0.10); transform: scale(1.03); }
+      .sch-glass-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.09);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.07) inset, 0 16px 48px rgba(0,0,0,0.4);
+      }
+      .sch-section-bg { background: rgba(255,255,255,0.015); }
+      .sch-orbit-ring {
+        animation: spin-slow 22s linear infinite;
+      }
+      .sch-orbit-ring-rev {
+        animation: spin-slow-rev 30s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+  return null;
+};
+
+/* ─── Data ───────────────────────────────────────────────────── */
+
+const ecosystemModules = [
+  { label: 'Student Portal', icon: GraduationCap, color: '#06b6d4', desc: 'Personalized dashboard for every learner' },
+  { label: 'Faculty Workspace', icon: BookOpen, color: '#a855f7', desc: 'Tools built for modern educators' },
+  { label: 'Admin Intelligence', icon: Settings2, color: '#e040fb', desc: 'Command center for campus operations' },
+  { label: 'Attendance System', icon: ShieldCheck, color: '#10b981', desc: 'Real-time session tracking & analytics' },
+  { label: 'Placement Cell', icon: TrendingUp, color: '#f59e0b', desc: 'End-to-end career & placement management' },
+  { label: 'Events Engine', icon: CalendarClock, color: '#ef4444', desc: 'Campus events from draft to broadcast' },
+  { label: 'Library Services', icon: Database, color: '#3b82f6', desc: 'Digital catalogue & resource access' },
+  { label: 'AI Analytics', icon: Brain, color: '#ec4899', desc: 'Predictive insights & smart automation' },
+  { label: 'Communication Hub', icon: BellRing, color: '#14b8a6', desc: 'Role-aware campus-wide messaging' },
+  { label: 'Campus Navigation', icon: MapPinned, color: '#f97316', desc: 'Interactive indoor & outdoor maps' },
+];
+
+const legacyPains = [
+  { text: 'Manual attendance sheets & physical registers', icon: '📋' },
+  { text: 'Fragmented portals with zero integration', icon: '🧩' },
+  { text: 'Paper-heavy administrative workflows', icon: '📄' },
+  { text: 'Delayed notices & communication breakdowns', icon: '📮' },
+  { text: 'Siloed departments with no shared data layer', icon: '🏚️' },
+];
+
+const transformations = [
+  { text: 'AI-powered real-time attendance intelligence', icon: Brain },
+  { text: 'Unified platform — one login, every module', icon: Layers },
+  { text: 'Digital-first end-to-end workflow automation', icon: Workflow },
+  { text: 'Instant multi-channel role-aware broadcasts', icon: Radar },
+  { text: 'Centralized data layer with live campus analytics', icon: LineChart },
+];
+
+const dashboardStories = [
   {
-    title: 'Unified Notices',
-    desc: 'Role-aware announcements so students never miss critical updates from faculty or admin.',
-    icon: BellRing,
-    accent: 'from-blue-500/[0.15] to-cyan-500/[0.08]',
-    iconBg: 'bg-blue-500/[0.15]',
-    iconColor: 'text-blue-400',
-    border: 'border-blue-500/[0.18]',
-    glow: 'hover:shadow-blue-500/[0.12]',
-    ring: 'group-hover:ring-blue-500/20',
+    label: 'Student',
+    color: 'from-cyan-500 to-blue-600',
+    tagline: 'Everything a student needs, distilled.',
+    items: [
+      { icon: CalendarClock, text: 'Data Structures — Hall A-101', badge: 'In 20 min', bc: 'bg-cyan-500/20 text-cyan-300' },
+      { icon: ShieldCheck, text: 'Attendance: 87% overall', badge: 'On Track', bc: 'bg-emerald-500/20 text-emerald-300' },
+      { icon: BellRing, text: '3 unread notices from admin', badge: 'New', bc: 'bg-violet-500/20 text-violet-300' },
+      { icon: MapPinned, text: 'Lab B-204 directions ready', badge: 'Maps', bc: 'bg-orange-500/20 text-orange-300' },
+    ],
   },
   {
-    title: 'Attendance Clarity',
-    desc: 'Faculty mark sessions in seconds; students see transparent history with real-time sync.',
-    icon: ShieldCheck,
-    accent: 'from-emerald-500/[0.15] to-teal-500/[0.08]',
-    iconBg: 'bg-emerald-500/[0.15]',
-    iconColor: 'text-emerald-400',
-    border: 'border-emerald-500/[0.18]',
-    glow: 'hover:shadow-emerald-500/[0.12]',
-    ring: 'group-hover:ring-emerald-500/20',
+    label: 'Faculty',
+    color: 'from-violet-500 to-purple-700',
+    tagline: 'Teach, track, and communicate — seamlessly.',
+    items: [
+      { icon: Users, text: '42 students in live session', badge: 'Live', bc: 'bg-red-500/20 text-red-300' },
+      { icon: ShieldCheck, text: 'Mark attendance for CS-301', badge: 'Pending', bc: 'bg-amber-500/20 text-amber-300' },
+      { icon: CalendarClock, text: '4 classes scheduled today', badge: 'Today', bc: 'bg-cyan-500/20 text-cyan-300' },
+      { icon: BellRing, text: 'Department notice awaiting', badge: 'Draft', bc: 'bg-emerald-500/20 text-emerald-300' },
+    ],
   },
   {
-    title: 'Live Timetables',
-    desc: 'Department schedules stay synchronized across every role-specific dashboard instantly.',
-    icon: CalendarClock,
-    accent: 'from-violet-500/[0.15] to-purple-500/[0.08]',
-    iconBg: 'bg-violet-500/[0.15]',
-    iconColor: 'text-violet-400',
-    border: 'border-violet-500/[0.18]',
-    glow: 'hover:shadow-violet-500/[0.12]',
-    ring: 'group-hover:ring-violet-500/20',
-  },
-  {
-    title: 'Campus Navigation',
-    desc: 'Explore buildings, labs, and facilities with an interactive map powered by geolocation.',
-    icon: MapPinned,
-    accent: 'from-orange-500/[0.15] to-amber-500/[0.08]',
-    iconBg: 'bg-orange-500/[0.15]',
-    iconColor: 'text-orange-400',
-    border: 'border-orange-500/[0.18]',
-    glow: 'hover:shadow-orange-500/[0.12]',
-    ring: 'group-hover:ring-orange-500/20',
+    label: 'Admin',
+    color: 'from-emerald-500 to-teal-700',
+    tagline: 'Total campus visibility, one command center.',
+    items: [
+      { icon: Users, text: '1,240 active students enrolled', badge: 'Total', bc: 'bg-blue-500/20 text-blue-300' },
+      { icon: Activity, text: 'Campus utilization: 78%', badge: 'Live', bc: 'bg-emerald-500/20 text-emerald-300' },
+      { icon: TrendingUp, text: 'Attendance rate up +12%', badge: '↑', bc: 'bg-green-500/20 text-green-300' },
+      { icon: Globe, text: 'All departments synced', badge: 'OK', bc: 'bg-cyan-500/20 text-cyan-300' },
+    ],
   },
 ];
 
-const stats = [
-  { label: 'Roles connected', value: '3', hint: 'Students · Faculty · Admin' },
-  { label: 'Realtime events', value: 'Socket.IO', hint: 'Instant notice broadcasts' },
-  { label: 'Security', value: 'JWT', hint: 'Role-guarded APIs' },
+const bentoFeatures = [
+  { title: 'Attendance Intelligence', desc: 'Facial + QR + manual — session-linked, fraud-resistant real-time sync.', icon: ShieldCheck, accent: '#10b981', span: 'md:col-span-2', big: true },
+  { title: 'Placement Automation', desc: 'End-to-end offer tracking, resume scoring, and recruiter management.', icon: TrendingUp, accent: '#f59e0b', span: '' },
+  { title: 'Smart Notifications', desc: 'Role-filtered broadcasts via Socket.IO with zero latency.', icon: BellRing, accent: '#e040fb', span: '' },
+  { title: 'Campus Event Engine', desc: 'Draft, publish, RSVP, and analytics — full lifecycle.', icon: CalendarClock, accent: '#ef4444', span: '' },
+  { title: 'Faculty Workspace', desc: 'Dedicated UX for class management, grade flow, and communication.', icon: BookOpen, accent: '#a855f7', span: 'md:col-span-2', big: true },
+  { title: 'Security & RBAC', desc: 'JWT-based zero-trust auth with granular role-level API guards.', icon: Lock, accent: '#06b6d4', span: '' },
+  { title: 'Analytics Dashboard', desc: 'Real-time campus pulse — utilization, trends, anomaly detection.', icon: BarChart3, accent: '#3b82f6', span: '' },
 ];
 
-const steps = [
-  { title: 'Onboard', text: 'Register with your campus email and role-specific profile.', num: '01' },
-  { title: 'Engage', text: 'Dashboards surface attendance, classes, and notices instantly.', num: '02' },
-  { title: 'Operate', text: 'Admins orchestrate people, communications, and analytics.', num: '03' },
+const techStack = [
+  { name: 'React', category: 'Frontend', icon: Code2, color: '#61dafb' },
+  { name: 'Vite', category: 'Build Tool', icon: Zap, color: '#f97316' },
+  { name: 'Node.js', category: 'Runtime', icon: Server, color: '#84cc16' },
+  { name: 'Express', category: 'API Layer', icon: Layers, color: '#94a3b8' },
+  { name: 'MySQL', category: 'Database', icon: Database, color: '#00aff0' },
+  { name: 'Socket.IO', category: 'Realtime', icon: Wifi, color: '#e040fb' },
+  { name: 'JWT', category: 'Auth', icon: Lock, color: '#f59e0b' },
+  { name: 'Vercel', category: 'Deploy', icon: CloudUpload, color: '#ffffff' },
+  { name: 'Render', category: 'Backend', icon: Terminal, color: '#10b981' },
+  { name: 'GitHub', category: 'VCS', icon: GitBranch, color: '#a78bfa' },
+];
+
+const metricsList = [
+  { value: 10, suffix: '+', label: 'Platform Modules', color: '#e040fb' },
+  { value: 3, suffix: '', label: 'Role Architectures', color: '#06b6d4' },
+  { value: 99.9, suffix: '%', label: 'API Uptime', color: '#10b981' },
+  { value: 1240, suffix: '+', label: 'Active Campus Users', color: '#f59e0b' },
+  { value: 0, suffix: 'ms', label: 'Socket Latency', color: '#a855f7' },
+  { value: 100, suffix: '%', label: 'Role-Guarded APIs', color: '#ef4444' },
 ];
 
 const testimonials = [
   {
-    quote: 'Finally one place for timetables and notices — our student council loves it.',
-    name: 'Priya N.',
-    role: 'Student leader',
-    avatar: 'PN',
-    color: 'from-blue-500 to-cyan-500',
+    quote: 'The most polished academic platform I have ever seen. It feels like the Stripe of campus software — every detail is considered.',
+    name: 'Dr. Ananya Singh',
+    role: 'Head of Computer Science, VJTI Mumbai',
+    avatar: 'AS',
+    color: 'from-violet-600 to-purple-600',
     rating: 5,
   },
   {
-    quote: 'Marking attendance tied to my slots removed so much back-and-forth.',
-    name: 'Dr. Jordan Lee',
-    role: 'Faculty',
-    avatar: 'JL',
-    color: 'from-violet-500 to-purple-500',
+    quote: 'Our student council was amazed. Real-time attendance, live notices, and the dashboard — it just works beautifully across all devices.',
+    name: 'Rahul Mehta',
+    role: 'Student Council President',
+    avatar: 'RM',
+    color: 'from-cyan-600 to-blue-600',
+    rating: 5,
+  },
+  {
+    quote: 'Recruitment workflows that used to take days now run automatically. The placement module alone is worth adopting the whole platform.',
+    name: 'Priya Nair',
+    role: 'Placement Coordinator, IIT',
+    avatar: 'PN',
+    color: 'from-emerald-600 to-teal-600',
     rating: 5,
   },
 ];
 
-const universities = [
-  'MIT Campus', 'Stanford Uni', 'IIT Bombay', 'Harvard EDU', 'Oxford Net', 'NUS Connect',
-];
-
-const platformCaps = [
-  { icon: Globe, label: 'Multi-campus', desc: 'Deploy across institutions' },
-  { icon: Database, label: 'Data-first', desc: 'Structured campus data' },
-  { icon: Cpu, label: 'AI-powered', desc: 'Smart recommendations' },
-  { icon: Wifi, label: 'Realtime', desc: 'Socket.IO live sync' },
-  { icon: Lock, label: 'Zero-trust', desc: 'JWT + role guards' },
-  { icon: BarChart3, label: 'Analytics', desc: 'Actionable insights' },
-];
-
-const roleData = {
-  Student: {
-    icon: GraduationCap,
-    color: 'from-blue-600 to-cyan-500',
-    items: [
-      { icon: CalendarClock, label: 'Today: Data Structures — Hall A-101', badge: 'In 20 min' },
-      { icon: ShieldCheck, label: 'Attendance: 87% overall', badge: 'Good' },
-      { icon: BellRing, label: '3 new notices from admin', badge: 'Unread' },
-      { icon: MapPinned, label: 'Lab B-204 directions', badge: 'Maps' },
-    ],
-  },
-  Faculty: {
-    icon: BookOpen,
-    color: 'from-violet-600 to-purple-500',
-    items: [
-      { icon: Users, label: '42 students in current session', badge: 'Live' },
-      { icon: ShieldCheck, label: 'Mark attendance for CS-301', badge: 'Pending' },
-      { icon: CalendarClock, label: '4 classes scheduled today', badge: 'Today' },
-      { icon: BellRing, label: 'Post department notice', badge: 'Draft' },
-    ],
-  },
-  Admin: {
-    icon: Settings2,
-    color: 'from-emerald-600 to-teal-500',
-    items: [
-      { icon: Users, label: '1,240 active students enrolled', badge: 'Total' },
-      { icon: Activity, label: 'Campus utilization: 78%', badge: 'Live' },
-      { icon: TrendingUp, label: 'Attendance rate up 12%', badge: '↑' },
-      { icon: Globe, label: 'All departments synced', badge: 'OK' },
-    ],
-  },
+const footerLinks = {
+  Platform: ['Student Portal', 'Faculty Workspace', 'Admin Dashboard', 'Attendance', 'Placement', 'Events', 'Library'],
+  Technology: ['React', 'Node.js', 'Express', 'MySQL', 'JWT', 'Socket.IO', 'Vercel'],
+  Resources: ['Features', 'Architecture', 'GitHub', 'Documentation', 'API Reference'],
 };
 
 /* ─── Micro-components ───────────────────────────────────────── */
 
-const FloatingBadge = ({ children, className = '' }) => (
-  <motion.div
-    animate={{ y: [0, -5, 0] }}
-    transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-    className={`inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-slate-200 shadow-lg backdrop-blur-md ${className}`}
+const LiveDot = ({ color = '#10b981' }) => (
+  <span className="relative flex h-2 w-2 shrink-0">
+    <span className="absolute inline-flex h-full w-full rounded-full opacity-75"
+      style={{ backgroundColor: color, animation: 'pulse-ring 1.4s cubic-bezier(0,0,0.2,1) infinite' }} />
+    <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+  </span>
+);
+
+const GradientText = ({ children, from = '#e040fb', via = '#7c3aed', to = '#06b6d4', className = '' }) => (
+  <span
+    className={className}
+    style={{
+      background: `linear-gradient(135deg, ${from}, ${via}, ${to})`,
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}
   >
+    {children}
+  </span>
+);
+
+const SectionPill = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest sch-body"
+    style={{
+      background: 'rgba(224,64,251,0.1)',
+      border: '1px solid rgba(224,64,251,0.25)',
+      color: '#e040fb',
+    }}
+  >
+    <Sparkles className="h-3 w-3" />
     {children}
   </motion.div>
 );
 
-const LiveDot = ({ color = 'bg-emerald-400' }) => (
-  <span className="relative flex h-2 w-2">
-    <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${color}`} />
-    <span className={`relative inline-flex h-2 w-2 rounded-full ${color}`} />
-  </span>
-);
-
-const GradientOrb = ({ className }) => (
-  <div className={`pointer-events-none absolute rounded-full blur-3xl ${className}`} />
-);
-
-/* Section label pill — unchanged */
-const SectionLabel = ({ children }) => (
-  <motion.p
-    initial={{ opacity: 0, y: 8 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/[0.10] px-3 py-1 text-xs font-semibold uppercase tracking-widest text-indigo-400"
-  >
-    {children}
-  </motion.p>
-);
-
-/* Section heading — text-white, strong contrast */
 const SectionHeading = ({ children, className = '' }) => (
   <motion.h2
-    initial={{ opacity: 0, y: 12 }}
+    initial={{ opacity: 0, y: 14 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ delay: 0.05 }}
-    className={`mt-3 text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl ${className}`}
+    transition={{ delay: 0.06 }}
+    className={`sch-heading mt-3 text-3xl font-bold leading-tight text-white md:text-4xl lg:text-5xl ${className}`}
   >
     {children}
   </motion.h2>
 );
 
-/* 3D Tilt — unchanged */
-const TiltCard = ({ children, className = '' }) => {
+/* 3D Tilt card */
+const TiltCard = ({ children, className = '', intensity = 8 }) => {
   const ref = useRef(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotateX = useSpring(useTransform(y, [-50, 50], [6, -6]), { stiffness: 300, damping: 30 });
-  const rotateY = useSpring(useTransform(x, [-50, 50], [-6, 6]), { stiffness: 300, damping: 30 });
+  const rotX = useSpring(useTransform(y, [-60, 60], [intensity, -intensity]), { stiffness: 280, damping: 28 });
+  const rotY = useSpring(useTransform(x, [-60, 60], [-intensity, intensity]), { stiffness: 280, damping: 28 });
   const handleMouseMove = (e) => {
     if (!ref.current) return;
     const r = ref.current.getBoundingClientRect();
@@ -220,7 +348,7 @@ const TiltCard = ({ children, className = '' }) => {
   return (
     <motion.div
       ref={ref}
-      style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+      style={{ rotateX: rotX, rotateY: rotY, transformStyle: 'preserve-3d' }}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => { x.set(0); y.set(0); }}
       className={className}
@@ -230,527 +358,630 @@ const TiltCard = ({ children, className = '' }) => {
   );
 };
 
-/* Mouse follow glow — opacity lifted for dark bg */
+/* Mouse cursor glow */
 const MouseGlow = () => {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: -500, y: -500 });
   useEffect(() => {
     const h = (e) => setPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', h);
+    window.addEventListener('mousemove', h, { passive: true });
     return () => window.removeEventListener('mousemove', h);
   }, []);
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-0"
+      className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
       style={{
-        background: `radial-gradient(600px circle at ${pos.x}px ${pos.y}px, rgba(99,102,241,0.08), transparent 50%)`,
+        background: `radial-gradient(700px circle at ${pos.x}px ${pos.y}px, rgba(224,64,251,0.06), rgba(124,58,237,0.04) 30%, transparent 60%)`,
       }}
     />
   );
 };
 
-/* Grid overlay — subtle on dark */
-const GridOverlay = () => (
-  <div
-    className="pointer-events-none absolute inset-0"
-    style={{
-      backgroundImage: `linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)`,
-      backgroundSize: '60px 60px',
-    }}
-  />
+/* Animated counter */
+const AnimatedCounter = ({ target, suffix = '', decimals = 0 }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const ctrl = animate(0, target, {
+      duration: 2.2,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setVal(decimals > 0 ? parseFloat(v.toFixed(decimals)) : Math.floor(v)),
+    });
+    return () => ctrl.stop();
+  }, [inView, target, decimals]);
+  return (
+    <span ref={ref} className="sch-stat">
+      {val}{suffix}
+    </span>
+  );
+};
+
+/* Aurora background */
+const AuroraBackground = () => (
+  <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    {/* Deep bg */}
+    <div className="absolute inset-0" style={{ background: '#05030f' }} />
+    {/* Aurora blobs */}
+    <div className="absolute" style={{
+      inset: '-20%',
+      background: 'radial-gradient(ellipse 70% 50% at 20% 15%, rgba(224,64,251,0.14) 0%, transparent 60%)',
+      animation: 'aurora-drift 18s ease-in-out infinite',
+    }} />
+    <div className="absolute" style={{
+      inset: '-20%',
+      background: 'radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.11) 0%, transparent 60%)',
+      animation: 'aurora-drift-2 22s ease-in-out infinite',
+    }} />
+    <div className="absolute" style={{
+      inset: '-20%',
+      background: 'radial-gradient(ellipse 80% 40% at 50% 100%, rgba(124,58,237,0.10) 0%, transparent 55%)',
+      animation: 'aurora-drift 28s ease-in-out infinite reverse',
+    }} />
+    <div className="absolute" style={{
+      inset: '-20%',
+      background: 'radial-gradient(ellipse 50% 60% at 90% 20%, rgba(16,185,129,0.07) 0%, transparent 50%)',
+      animation: 'aurora-drift-2 35s ease-in-out infinite',
+    }} />
+    {/* Grid */}
+    <div className="absolute inset-0" style={{
+      backgroundImage: `linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)`,
+      backgroundSize: '80px 80px',
+    }} />
+    {/* Subtle grain noise */}
+    <div className="absolute inset-0" style={{
+      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
+      opacity: 0.4,
+    }} />
+  </div>
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   HERO
+   SECTION 1 — HERO
 ═══════════════════════════════════════════════════════════════ */
-const Hero = () => (
-  <section className="relative mx-auto flex max-w-6xl flex-col gap-12 overflow-visible px-4 pb-20 pt-10 md:flex-row md:items-center md:pt-16">
-    <GridOverlay />
+const Hero = () => {
+  const trustChips = [
+    { label: 'AI Powered', icon: Brain, color: '#e040fb' },
+    { label: 'Enterprise Secure', icon: Lock, color: '#10b981' },
+    { label: 'Multi Portal', icon: Layers, color: '#06b6d4' },
+    { label: 'Real-Time Platform', icon: Wifi, color: '#f59e0b' },
+    { label: 'Production Ready', icon: CheckCircle2, color: '#a855f7' },
+  ];
 
-    {/* LEFT ── text content */}
-    <div className="relative z-10 flex-1">
+  return (
+    <section className="relative mx-auto flex max-w-7xl flex-col gap-12 overflow-visible px-6 pb-24 pt-12 md:flex-row md:items-center md:pt-20">
 
-      {/* Badge pill */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-gradient-to-r from-indigo-500/[0.12] to-violet-500/[0.10] px-4 py-1.5 text-xs font-semibold text-indigo-300 shadow-sm backdrop-blur"
-      >
-        <LiveDot />
-        <Sparkles className="h-3.5 w-3.5" />
-        AI-Powered Campus Intelligence Platform
-      </motion.div>
+      {/* LEFT */}
+      <div className="relative z-10 flex-1">
 
-      {/* H1 — near white, cinematic */}
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08 }}
-        className="mt-6 text-5xl font-extrabold leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl"
-      >
-        The campus{' '}
-        <span className="relative">
-          <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
-            operating system
-          </span>
-          <motion.span
-            className="absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r from-indigo-500 to-violet-500"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            style={{ originX: 0 }}
-          />
-        </span>
-        {' '}for modern colleges.
-      </motion.h1>
-
-      {/* Supporting text — slate-400, readable */}
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.12 }}
-        className="mt-5 max-w-xl text-lg leading-relaxed text-slate-400"
-      >
-        Smart Campus Hub unifies communication, attendance, schedules, and wayfinding — crafted with glassmorphism, motion, and a production-grade API.
-      </motion.p>
-
-      {/* CTA buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.16 }}
-        className="mt-8 flex flex-wrap gap-3"
-      >
-        <Link to="/register">
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <Button className="w-full gap-2 sm:w-auto">
-              Launch console <ArrowRight className="h-4 w-4" />
-            </Button>
-          </motion.div>
-        </Link>
-        <Link to="/login">
-          <Button variant="ghost" className="w-full sm:w-auto">Sign in</Button>
-        </Link>
-      </motion.div>
-
-      {/* Feature pills row */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.25 }}
-        className="mt-10 flex flex-wrap gap-5 text-sm text-slate-400"
-      >
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-cyan-400" /> Multi-role workspaces
-        </div>
-        <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4 text-violet-400" /> Realtime notifications
-        </div>
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-400" /> JWT secured APIs
-        </div>
-      </motion.div>
-
-      {/* Floating badges */}
-      <div className="mt-8 flex flex-wrap gap-2">
-        {[
-          { label: 'AI Powered', icon: Cpu, color: 'text-violet-400' },
-          { label: 'Realtime Sync', icon: Wifi, color: 'text-blue-400' },
-          { label: 'Campus Analytics', icon: BarChart3, color: 'text-emerald-400' },
-        ].map((badge, i) => (
-          <motion.div
-            key={badge.label}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 + i * 0.07 }}
-          >
-            <FloatingBadge>
-              <badge.icon className={`h-3.5 w-3.5 ${badge.color}`} />
-              {badge.label}
-            </FloatingBadge>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-
-    {/* RIGHT ── Dashboard UI mockup (intentionally light-interior to show a "product screenshot") */}
-    <motion.div
-      initial={{ opacity: 0, scale: 0.94, x: 30 }}
-      animate={{ opacity: 1, scale: 1, x: 0 }}
-      transition={{ delay: 0.2, duration: 0.6 }}
-      className="relative z-10 flex-1"
-    >
-      <TiltCard className="relative">
-        {/* Ambient glow ring behind card */}
-        <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-tr from-indigo-600/25 via-violet-600/15 to-cyan-500/20 blur-2xl" />
-
-        {/* Dark glass outer card */}
-        <div
-          className="relative rounded-2xl border border-white/[0.10] backdrop-blur-2xl"
+        {/* Pill badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold sch-body"
           style={{
-            background: 'rgba(255,255,255,0.07)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.10) inset, 0 24px 64px rgba(0,0,0,0.55)',
+            background: 'linear-gradient(135deg, rgba(224,64,251,0.12), rgba(6,182,212,0.10))',
+            border: '1px solid rgba(224,64,251,0.3)',
+            color: '#e0b0ff',
           }}
         >
-          {/* Header bar — dark */}
-          <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Live campus pulse</p>
-              <p className="mt-0.5 text-sm font-bold text-white">Smart Campus Hub</p>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/[0.12] px-2.5 py-1 text-xs font-semibold text-emerald-300">
-              <LiveDot color="bg-emerald-400" /> Live
-            </div>
-          </div>
-
-          <div className="p-5">
-            {/* Stats grid — dark glass mini-cards */}
-            <div className="grid gap-3 sm:grid-cols-3">
-              {stats.map((s) => (
-                <motion.div
-                  key={s.label}
-                  whileHover={{ y: -2, scale: 1.02 }}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.05] p-3.5"
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{s.label}</p>
-                  <p className="mt-1.5 text-lg font-bold text-white">{s.value}</p>
-                  <p className="text-[10px] text-slate-500">{s.hint}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Next class card — keeps vibrant gradient */}
-            <div className="mt-4 overflow-hidden rounded-xl bg-gradient-to-r from-slate-900 via-indigo-900/80 to-blue-900/70 p-4 text-white shadow-xl ring-1 ring-white/[0.08]">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-medium text-white/50">Next class</p>
-                  <p className="mt-1 text-base font-bold text-white">Data Structures</p>
-                  <p className="text-xs text-white/60">Hall A-101 · Synced live</p>
-                </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
-                  <CalendarClock className="h-4 w-4 text-white" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/20">
-                  <motion.div
-                    initial={{ width: '0%' }}
-                    animate={{ width: '65%' }}
-                    transition={{ delay: 0.8, duration: 1.2 }}
-                    className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400"
-                  />
-                </div>
-                <span className="text-[10px] font-semibold text-white/50">20 min</span>
-              </div>
-            </div>
-
-            {/* Notification rows — dark glass */}
-            <div className="mt-3 space-y-2">
-              {[
-                { msg: 'Attendance marked for CS-301', time: '2m ago', badge: 'bg-emerald-500/[0.15] text-emerald-300 border border-emerald-500/25' },
-                { msg: 'New notice from Admin', time: '8m ago', badge: 'bg-blue-500/[0.15] text-blue-300 border border-blue-500/25' },
-              ].map((n, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.12 }}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <Bell className="h-3.5 w-3.5 text-slate-500" />
-                    <span className="text-xs text-slate-300">{n.msg}</span>
-                  </div>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${n.badge}`}>{n.time}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </TiltCard>
-    </motion.div>
-  </section>
-);
-
-/* ═══════════════════════════════════════════════════════════════
-   TRUSTED BY
-═══════════════════════════════════════════════════════════════ */
-const TrustedBy = () => (
-  <section
-    className="border-y border-white/[0.07] py-10"
-    style={{ background: 'rgba(255,255,255,0.025)' }}
-  >
-    <div className="mx-auto max-w-6xl px-4">
-      <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500">
-        Trusted by leading institutions
-      </p>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-6 md:gap-10">
-        {universities.map((u, i) => (
-          <motion.div
-            key={u}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.06 }}
-            className="flex items-center gap-2 rounded-xl border border-white/[0.09] bg-white/[0.05] px-4 py-2 text-sm font-semibold text-slate-300 backdrop-blur"
-          >
-            <GraduationCap className="h-4 w-4 text-indigo-400" />
-            {u}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
-
-/* ═══════════════════════════════════════════════════════════════
-   FEATURES — dark glass cards, accent-colored icons
-═══════════════════════════════════════════════════════════════ */
-const Features = () => (
-  <section id="features" className="mx-auto max-w-6xl px-4 py-20">
-    <div className="text-center">
-      <SectionLabel>Why it wins</SectionLabel>
-      <SectionHeading>Designed like a startup<br />product team shipped it</SectionHeading>
-      <motion.p
-        initial={{ opacity: 0, y: 8 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.1 }}
-        className="mx-auto mt-4 max-w-xl text-base text-slate-400"
-      >
-        Every feature is purpose-built for real campus operations — not another generic admin panel.
-      </motion.p>
-    </div>
-
-    <div className="mt-14 grid gap-5 md:grid-cols-2">
-      {features.map((f, i) => (
-        <motion.div
-          key={f.title}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.07 }}
-          whileHover={{ y: -4 }}
-          className={`group relative overflow-hidden rounded-2xl border bg-white/[0.05] p-6 backdrop-blur-xl transition-all duration-300 ${f.border} hover:bg-white/[0.08] hover:shadow-xl ${f.glow}`}
-          style={{ boxShadow: '0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 32px rgba(0,0,0,0.35)' }}
-        >
-          {/* Corner glow */}
-          <div className={`absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gradient-to-br ${f.accent} blur-2xl transition-all duration-500 group-hover:scale-150`} />
-
-          {/* Gradient wash on hover */}
-          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${f.accent} opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-
-          <div className="relative flex items-start gap-4">
-            <div className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${f.iconBg} ring-1 ring-white/[0.08]`}>
-              <f.icon className={`h-6 w-6 ${f.iconColor}`} />
-            </div>
-            <div>
-              {/* FIXED: was text-slate-900 (invisible on dark) */}
-              <h3 className="text-lg font-bold text-white">{f.title}</h3>
-              {/* FIXED: was text-slate-500 which is too dim on dark */}
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{f.desc}</p>
-            </div>
-          </div>
-
-          <div className="relative mt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-500 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100 group-hover:text-slate-300">
-            Learn more <ChevronRight className="h-3.5 w-3.5" />
-          </div>
+          <LiveDot color="#e040fb" />
+          <Atom className="h-3.5 w-3.5" style={{ color: '#e040fb' }} />
+          Cosmic Aurora Digital Campus — v2.0 Live
         </motion.div>
-      ))}
-    </div>
-  </section>
-);
 
-/* ═══════════════════════════════════════════════════════════════
-   BENTO GRID — dark surfaces throughout
-═══════════════════════════════════════════════════════════════ */
-const BentoGrid = () => (
-  <section className="mx-auto max-w-6xl px-4 py-16">
-    <div className="text-center">
-      <SectionLabel>Platform capabilities</SectionLabel>
-      <SectionHeading>Everything your campus needs</SectionHeading>
-    </div>
+        {/* H1 */}
+        <motion.h1
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="sch-hero-h1 mt-6 text-5xl font-extrabold leading-[1.08] tracking-tight text-white md:text-6xl lg:text-7xl"
+        >
+          Smart Campus,
+          <br />
+          <GradientText from="#e040fb" via="#7c3aed" to="#06b6d4">
+            Reimagined
+          </GradientText>
+          <br />
+          <span className="text-white">for the Future.</span>
+        </motion.h1>
 
-    <div className="mt-12 grid gap-4 md:grid-cols-3">
+        {/* Underline */}
+        <motion.div
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ delay: 0.55, duration: 0.7 }}
+          style={{
+            originX: 0,
+            height: 2,
+            marginTop: 6,
+            width: '70%',
+            background: 'linear-gradient(90deg, #e040fb, #06b6d4, transparent)',
+            borderRadius: 2,
+          }}
+        />
 
-      {/* Hero stat card — gradient, keeps light text (on gradient bg) */}
+        {/* Sub */}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="sch-body mt-6 max-w-lg text-lg leading-relaxed"
+          style={{ color: 'rgba(255,255,255,0.55)' }}
+        >
+          A flagship full-stack platform that transforms disconnected campus systems into a unified,
+          AI-powered digital operating system — built for students, faculty, and administrators.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="mt-8 flex flex-wrap gap-3"
+        >
+          <Link to="/register">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              className="sch-primary-btn sch-body flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-white"
+            >
+              <Sparkles className="h-4 w-4" /> Explore Platform <ArrowRight className="h-4 w-4" />
+            </motion.button>
+          </Link>
+          <a href="https://github.com/YashSurve2006" target="_blank" rel="noreferrer">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              className="sch-ghost-btn sch-body flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-white"
+            >
+              <GitBranch className="h-4 w-4" /> View GitHub
+            </motion.button>
+          </a>
+          <Link to="/login">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              className="sch-body flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold transition-colors"
+              style={{ color: 'rgba(255,255,255,0.55)' }}
+              whileHover={{ color: 'rgba(255,255,255,0.9)' }}
+            >
+              Live Demo <Eye className="h-4 w-4" />
+            </motion.button>
+          </Link>
+        </motion.div>
+
+        {/* Trust Chips */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35 }}
+          className="mt-9 flex flex-wrap gap-2"
+        >
+          {trustChips.map((chip, i) => (
+            <motion.div
+              key={chip.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.38 + i * 0.06 }}
+              style={{ animation: `float-y ${2.8 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold sch-body"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: `1px solid ${chip.color}30`,
+                color: chip.color,
+                animation: `float-y ${2.8 + i * 0.3}s ease-in-out ${i * 0.2}s infinite`,
+              }}
+            >
+              <chip.icon className="h-3.5 w-3.5" />
+              {chip.label}
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* RIGHT — floating dashboard mockup */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-2xl shadow-indigo-900/50 md:col-span-2"
+        initial={{ opacity: 0, scale: 0.9, x: 30 }}
+        animate={{ opacity: 1, scale: 1, x: 0 }}
+        transition={{ delay: 0.25, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 flex-1"
+        style={{ animation: 'float-y-slow 7s ease-in-out infinite' }}
       >
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/[0.08] blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/[0.12] blur-2xl" />
-        <p className="text-xs font-bold uppercase tracking-widest text-white/50">Live analytics</p>
-        <p className="mt-2 text-5xl font-black text-white">1,240+</p>
-        <p className="text-base font-medium text-white/70">Active campus users · 3 roles · Real-time</p>
-        <div className="mt-6 grid grid-cols-3 gap-3">
-          {[
-            { label: 'Attendance', val: '87%' },
-            { label: 'Satisfaction', val: '94%' },
-            { label: 'Uptime', val: '99.9%' },
-          ].map((item) => (
-            <div key={item.label} className="rounded-xl bg-white/[0.12] px-3 py-2 text-center backdrop-blur-sm">
-              <p className="text-lg font-bold text-white">{item.val}</p>
-              <p className="text-[10px] text-white/50">{item.label}</p>
+        <TiltCard className="relative">
+          {/* Glow behind */}
+          <div className="absolute -inset-6 rounded-[3rem] blur-3xl" style={{
+            background: 'radial-gradient(ellipse at center, rgba(224,64,251,0.22) 0%, rgba(6,182,212,0.12) 60%, transparent 80%)',
+          }} />
+
+          {/* Main card */}
+          <div className="relative rounded-[1.75rem] sch-glass-card overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl"
+                  style={{ background: 'linear-gradient(135deg, #e040fb, #7c3aed)' }}>
+                  <Atom className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest sch-body" style={{ color: 'rgba(255,255,255,0.35)' }}>Live Campus OS</p>
+                  <p className="text-sm font-bold text-white sch-heading">Smart Campus Hub</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold sch-body"
+                style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981' }}>
+                <LiveDot color="#10b981" /> Live
+              </div>
+            </div>
+
+            <div className="p-5">
+              {/* Stat row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Active Users', val: '1,240', color: '#e040fb' },
+                  { label: 'Uptime', val: '99.9%', color: '#10b981' },
+                  { label: 'Modules', val: '10+', color: '#06b6d4' },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide sch-body" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</p>
+                    <p className="mt-1 text-lg font-bold sch-stat" style={{ color: s.color }}>{s.val}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Next class */}
+              <div className="mt-4 overflow-hidden rounded-xl p-4"
+                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(6,182,212,0.2))', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[10px] font-medium sch-body" style={{ color: 'rgba(255,255,255,0.4)' }}>Next Class</p>
+                    <p className="mt-1 text-base font-bold text-white sch-heading">Data Structures</p>
+                    <p className="text-xs sch-body" style={{ color: 'rgba(255,255,255,0.5)' }}>Hall A-101 · Live Sync</p>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                    <CalendarClock className="h-4 w-4 text-white" />
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                    <motion.div
+                      initial={{ width: '0%' }}
+                      animate={{ width: '65%' }}
+                      transition={{ delay: 1, duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                      className="h-full rounded-full"
+                      style={{ background: 'linear-gradient(90deg, #e040fb, #06b6d4)' }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold sch-body" style={{ color: 'rgba(255,255,255,0.45)' }}>20 min</span>
+                </div>
+              </div>
+
+              {/* Notification rows */}
+              <div className="mt-3 space-y-2">
+                {[
+                  { msg: 'Attendance synced for CS-301', dot: '#10b981', time: '2m' },
+                  { msg: 'New notice from Admin portal', dot: '#e040fb', time: '8m' },
+                  { msg: 'Placement drive — Google Inc.', dot: '#f59e0b', time: '1h' },
+                ].map((n, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 + i * 0.15 }}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <LiveDot color={n.dot} />
+                    <span className="flex-1 truncate text-xs sch-body" style={{ color: 'rgba(255,255,255,0.65)' }}>{n.msg}</span>
+                    <span className="shrink-0 text-[10px] sch-body" style={{ color: 'rgba(255,255,255,0.3)' }}>{n.time}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Role switcher */}
+              <div className="mt-3 flex gap-1.5">
+                {['Student', 'Faculty', 'Admin'].map((r, i) => (
+                  <motion.button
+                    key={r}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2 + i * 0.08 }}
+                    className="rounded-lg px-2.5 py-1 text-xs font-semibold sch-body transition-all"
+                    style={i === 0
+                      ? { background: 'linear-gradient(135deg, #e040fb, #7c3aed)', color: '#fff' }
+                      : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.07)' }
+                    }
+                  >
+                    {r}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </TiltCard>
+      </motion.div>
+    </section>
+  );
+};
+
+/* ─── Marquee ticker ─────────────────────────────────────────── */
+const InstitutionTicker = () => {
+  const items = [
+    'MIT Campus', 'Stanford Uni', 'IIT Bombay', 'Harvard EDU', 'Oxford Connect',
+    'NUS Singapore', 'VJTI Mumbai', 'IIM Ahmedabad', 'Columbia Uni', 'CalTech',
+  ];
+  const doubled = [...items, ...items];
+  return (
+    <div className="relative overflow-hidden py-10" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <p className="mb-5 text-center text-[10px] font-bold uppercase tracking-widest sch-body" style={{ color: 'rgba(255,255,255,0.3)' }}>
+        Trusted by leading academic institutions
+      </p>
+      <div className="relative">
+        <div className="absolute left-0 top-0 z-10 h-full w-20" style={{ background: 'linear-gradient(90deg, #05030f, transparent)' }} />
+        <div className="absolute right-0 top-0 z-10 h-full w-20" style={{ background: 'linear-gradient(270deg, #05030f, transparent)' }} />
+        <div style={{ display: 'flex', animation: 'ticker-scroll 28s linear infinite', width: 'max-content' }}>
+          {doubled.map((inst, i) => (
+            <div key={i} className="flex items-center gap-2 rounded-xl px-4 py-2 mx-2 shrink-0 sch-body text-sm font-semibold"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.55)' }}>
+              <GraduationCap className="h-4 w-4" style={{ color: '#e040fb' }} />
+              {inst}
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
+    </div>
+  );
+};
 
-      {/* Notifications preview — FIXED: was bg-white/80 with light text */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.08 }}
-        className="relative overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.06] p-5 backdrop-blur-xl"
-        style={{ boxShadow: '0 1px 0 rgba(255,255,255,0.09) inset, 0 16px 48px rgba(0,0,0,0.40)' }}
-      >
-        <div className="mb-3 flex items-center justify-between">
-          {/* FIXED: was text-slate-800 */}
-          <p className="text-sm font-bold text-white">Notifications</p>
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white">3</span>
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 2 — CAMPUS ECOSYSTEM ORBIT
+═══════════════════════════════════════════════════════════════ */
+const EcosystemOrbit = () => {
+  const [hovered, setHovered] = useState(null);
+
+  return (
+    <section className="relative mx-auto max-w-7xl px-6 py-24 overflow-hidden">
+      <div className="text-center mb-16">
+        <SectionPill>Campus Ecosystem</SectionPill>
+        <SectionHeading>Every Campus System,<br /><GradientText from="#e040fb" via="#a855f7" to="#06b6d4">Interconnected.</GradientText></SectionHeading>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+          className="sch-body mx-auto mt-4 max-w-xl text-base" style={{ color: 'rgba(255,255,255,0.45)' }}
+        >
+          Smart Campus Hub acts as the central neural core — every module orbits and syncs in real time.
+        </motion.p>
+      </div>
+
+      {/* Orbit visual */}
+      <div className="relative mx-auto flex items-center justify-center" style={{ height: 560, maxWidth: 620 }}>
+
+        {/* Orbit rings */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="rounded-full sch-orbit-ring absolute"
+            style={{ width: 480, height: 480, border: '1px solid rgba(224,64,251,0.12)' }} />
+          <div className="rounded-full sch-orbit-ring-rev absolute"
+            style={{ width: 340, height: 340, border: '1px dashed rgba(6,182,212,0.12)' }} />
+          <div className="rounded-full absolute"
+            style={{ width: 200, height: 200, border: '1px solid rgba(255,255,255,0.06)' }} />
         </div>
-        <div className="space-y-2.5">
-          {[
-            { icon: BellRing, bg: 'bg-blue-500/[0.15]', iconColor: 'text-blue-400', msg: 'New notice posted', time: '1m' },
-            { icon: ShieldCheck, bg: 'bg-emerald-500/[0.15]', iconColor: 'text-emerald-400', msg: 'Attendance synced', time: '5m' },
-            { icon: CalendarClock, bg: 'bg-violet-500/[0.15]', iconColor: 'text-violet-400', msg: 'Timetable updated', time: '12m' },
-          ].map((n, i) => (
+
+        {/* Core */}
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
+          className="relative z-20 flex flex-col items-center justify-center rounded-full"
+          style={{
+            width: 140, height: 140,
+            background: 'linear-gradient(135deg, rgba(224,64,251,0.2), rgba(124,58,237,0.3), rgba(6,182,212,0.15))',
+            border: '1px solid rgba(224,64,251,0.4)',
+            boxShadow: '0 0 60px rgba(224,64,251,0.3), 0 0 120px rgba(124,58,237,0.15)',
+          }}
+        >
+          <div className="absolute inset-0 rounded-full" style={{ animation: 'pulse-ring 2s ease-out infinite', background: 'rgba(224,64,251,0.15)' }} />
+          <Atom className="h-8 w-8 mb-1" style={{ color: '#e040fb' }} />
+          <p className="text-xs font-bold sch-heading text-white text-center leading-tight">Smart<br />Campus</p>
+          <p className="text-[9px] sch-body mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Neural Core</p>
+        </motion.div>
+
+        {/* Orbiting modules */}
+        {ecosystemModules.map((mod, i) => {
+          const angle = (i / ecosystemModules.length) * Math.PI * 2 - Math.PI / 2;
+          const r = 230;
+          const cx = r * Math.cos(angle);
+          const cy = r * Math.sin(angle);
+          return (
+            <motion.div
+              key={mod.label}
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 + i * 0.05 }}
+              className="absolute z-10 cursor-pointer"
+              style={{ transform: `translate(${cx}px, ${cy}px)`, translateX: '-50%', translateY: '-50%' }}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+            >
+              <motion.div
+                whileHover={{ scale: 1.18 }}
+                className="flex flex-col items-center"
+              >
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl"
+                  style={{
+                    background: `${mod.color}18`,
+                    border: `1px solid ${mod.color}40`,
+                    boxShadow: hovered === i ? `0 0 24px ${mod.color}50` : 'none',
+                    transition: 'box-shadow 0.3s',
+                  }}>
+                  <mod.icon className="h-5 w-5" style={{ color: mod.color }} />
+                </div>
+                <p className="mt-1 text-center text-[10px] font-semibold sch-body text-white leading-tight" style={{ maxWidth: 64, color: hovered === i ? mod.color : 'rgba(255,255,255,0.7)', transition: 'color 0.2s' }}>
+                  {mod.label}
+                </p>
+                {hovered === i && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className="absolute top-full mt-2 rounded-xl px-3 py-2 text-[10px] sch-body text-white text-center pointer-events-none z-30"
+                    style={{
+                      background: `linear-gradient(135deg, ${mod.color}25, rgba(0,0,0,0.8))`,
+                      border: `1px solid ${mod.color}40`,
+                      backdropFilter: 'blur(12px)',
+                      minWidth: 130,
+                      whiteSpace: 'normal',
+                    }}
+                  >
+                    {mod.desc}
+                  </motion.div>
+                )}
+              </motion.div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 3 — PROBLEM → TRANSFORMATION STORYTELLING
+═══════════════════════════════════════════════════════════════ */
+const Transformation = () => (
+  <section className="mx-auto max-w-7xl px-6 py-24">
+    <div className="text-center mb-14">
+      <SectionPill>The Shift</SectionPill>
+      <SectionHeading>From Legacy Chaos<br />to <GradientText from="#10b981" via="#06b6d4" to="#e040fb">Digital Excellence.</GradientText></SectionHeading>
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-6">
+      {/* Legacy side */}
+      <motion.div
+        initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+        className="rounded-3xl p-7 relative overflow-hidden"
+        style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}
+      >
+        <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full blur-2xl" style={{ background: 'rgba(239,68,68,0.12)' }} />
+        <p className="text-xs font-bold uppercase tracking-widest sch-body mb-4" style={{ color: '#ef4444' }}>❌ Legacy Campus Reality</p>
+        <div className="space-y-3">
+          {legacyPains.map((p, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: 10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 + i * 0.1 }}
-              className="flex items-center gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.04] p-2.5"
+              initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 sch-body text-sm"
+              style={{ background: 'rgba(239,68,68,0.07)', color: 'rgba(255,255,255,0.65)' }}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${n.bg}`}>
-                <n.icon className={`h-4 w-4 ${n.iconColor}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                {/* FIXED: was text-slate-700 */}
-                <p className="truncate text-xs font-semibold text-slate-200">{n.msg}</p>
-              </div>
-              {/* FIXED: was text-slate-400 */}
-              <span className="shrink-0 text-[10px] text-slate-500">{n.time}</span>
+              <span className="text-base shrink-0">{p.icon}</span>
+              {p.text}
             </motion.div>
           ))}
         </div>
       </motion.div>
 
-      {/* Platform capability tiles — FIXED: was bg-white/80 text-slate-800 */}
-      {platformCaps.map((cap, i) => (
-        <motion.div
-          key={cap.label}
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.05 + 0.1 }}
-          whileHover={{ y: -3, scale: 1.02 }}
-          className="group rounded-2xl border border-white/[0.09] bg-white/[0.05] p-4 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/25 hover:bg-white/[0.08]"
-          style={{ boxShadow: '0 1px 0 rgba(255,255,255,0.07) inset, 0 4px 16px rgba(0,0,0,0.25)' }}
-        >
-          <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/[0.15] transition-all duration-300 group-hover:bg-indigo-500/[0.22]">
-            <cap.icon className="h-4 w-4 text-indigo-400" />
-          </div>
-          {/* FIXED: was text-slate-800 */}
-          <p className="text-sm font-bold text-white">{cap.label}</p>
-          {/* FIXED: was text-slate-400 (too dim on dark) → slate-400 is fine but we use 400 */}
-          <p className="mt-0.5 text-xs text-slate-400">{cap.desc}</p>
-        </motion.div>
-      ))}
+      {/* Transformation side */}
+      <motion.div
+        initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+        className="rounded-3xl p-7 relative overflow-hidden"
+        style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}
+      >
+        <div className="absolute -left-6 -top-6 h-32 w-32 rounded-full blur-2xl" style={{ background: 'rgba(16,185,129,0.12)' }} />
+        <p className="text-xs font-bold uppercase tracking-widest sch-body mb-4" style={{ color: '#10b981' }}>✅ Smart Campus Transformation</p>
+        <div className="space-y-3">
+          {transformations.map((t, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 sch-body text-sm"
+              style={{ background: 'rgba(16,185,129,0.08)', color: 'rgba(255,255,255,0.75)' }}
+            >
+              <t.icon className="h-4 w-4 shrink-0" style={{ color: '#10b981' }} />
+              {t.text}
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   </section>
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   ROLE DASHBOARDS — mostly already dark-correct, minor tuning
+   SECTION 4 — PRODUCT STORYTELLING (Role Dashboards)
 ═══════════════════════════════════════════════════════════════ */
-const RoleDashboards = () => {
-  const [active, setActive] = useState('Student');
-  const data = roleData[active];
+const ProductShowcase = () => {
+  const [active, setActive] = useState(0);
+  const d = dashboardStories[active];
 
   return (
-    <section
-      className="border-y border-white/[0.07] py-20"
-      style={{ background: 'rgba(255,255,255,0.02)' }}
-    >
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="text-center">
-          <SectionLabel>Role-based dashboards</SectionLabel>
-          <SectionHeading>One platform, every role</SectionHeading>
-          <p className="mx-auto mt-4 max-w-xl text-base text-slate-400">
-            Personalized experiences for students, faculty, and administrators — all from a single codebase.
-          </p>
+    <section className="sch-section-bg border-y py-24" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="text-center mb-14">
+          <SectionPill>Product Showcase</SectionPill>
+          <SectionHeading>One Platform.<br /><GradientText from="#a855f7" via="#e040fb" to="#06b6d4">Every Role.</GradientText></SectionHeading>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="sch-body mx-auto mt-4 max-w-lg text-base" style={{ color: 'rgba(255,255,255,0.45)' }}
+          >
+            Cinematic role-specific experiences — each portal feels purpose-built.
+          </motion.p>
         </div>
 
         {/* Tab switcher */}
-        <div className="mt-10 flex justify-center gap-2">
-          {Object.keys(roleData).map((role) => {
-            const Icon = roleData[role].icon;
-            return (
-              <button
-                key={role}
-                onClick={() => setActive(role)}
-                className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${active === role
-                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'border border-white/[0.10] bg-white/[0.05] text-slate-400 hover:border-indigo-500/30 hover:text-indigo-300'
-                  }`}
-              >
-                <Icon className="h-4 w-4" /> {role}
-              </button>
-            );
-          })}
+        <div className="flex justify-center gap-2 mb-10">
+          {dashboardStories.map((story, i) => (
+            <button
+              key={story.label}
+              onClick={() => setActive(i)}
+              className="rounded-xl px-5 py-2.5 text-sm font-semibold sch-body transition-all duration-200"
+              style={active === i
+                ? { background: `linear-gradient(135deg, ${story.color.replace('from-', '').split(' ')[0].replace('-500', '')}, ${story.color.split('to-')[1]})`, color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }
+                : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }
+              }
+            >
+              {story.label}
+            </button>
+          ))}
         </div>
 
-        {/* Dashboard preview card */}
         <motion.div
           key={active}
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mt-8"
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div
-            className="overflow-hidden rounded-2xl border border-white/[0.09]"
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              boxShadow: '0 1px 0 rgba(255,255,255,0.10) inset, 0 16px 48px rgba(0,0,0,0.45)',
-            }}
-          >
-            {/* Gradient header strip */}
-            <div className={`flex items-center gap-3 bg-gradient-to-r ${data.color} px-6 py-4 text-white`}>
-              <data.icon className="h-5 w-5" />
-              <span className="font-semibold">{active} Dashboard</span>
-              <span className="ml-auto flex items-center gap-1.5 text-xs text-white/70">
-                <LiveDot /> Live
-              </span>
-            </div>
+          <TiltCard className="mx-auto max-w-3xl" intensity={5}>
+            <div className="relative rounded-3xl sch-glass-card overflow-hidden">
+              {/* Top bar gradient */}
+              <div className={`flex items-center gap-3 px-6 py-5 bg-gradient-to-r ${d.color}`}>
+                <div className="flex h-3 w-3 rounded-full bg-white/30" />
+                <div className="flex h-3 w-3 rounded-full bg-white/20" />
+                <div className="flex h-3 w-3 rounded-full bg-white/15" />
+                <p className="ml-2 font-semibold text-white sch-heading text-sm">{d.label} Dashboard — Smart Campus Hub</p>
+                <div className="ml-auto flex items-center gap-1.5 text-xs text-white/70 sch-body">
+                  <LiveDot color="rgba(255,255,255,0.9)" /> Live
+                </div>
+              </div>
 
-            <div className="grid gap-3 p-5 sm:grid-cols-2">
-              {data.items.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                  className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] p-3.5"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.09]">
-                    <item.icon className="h-4 w-4 text-slate-300" />
-                  </div>
-                  {/* FIXED: text-slate-300 already correct */}
-                  <span className="flex-1 text-sm text-slate-200">{item.label}</span>
-                  <span className="rounded-lg bg-white/[0.09] px-2 py-0.5 text-xs font-semibold text-slate-300">
-                    {item.badge}
-                  </span>
-                </motion.div>
-              ))}
+              <div className="p-6">
+                <p className="sch-body text-sm mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>{d.tagline}</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {d.items.map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      className="flex items-center gap-3 rounded-xl px-4 py-3"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                        <item.icon className="h-4 w-4 text-white" />
+                      </div>
+                      <span className="flex-1 text-sm text-white sch-body">{item.text}</span>
+                      <span className={`rounded-lg px-2 py-0.5 text-[10px] font-semibold sch-body ${item.bc}`}>{item.badge}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          </TiltCard>
         </motion.div>
       </div>
     </section>
@@ -758,42 +989,52 @@ const RoleDashboards = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   HOW IT WORKS — FIXED: was bg-white/90 text-slate-900 (invisible)
+   SECTION 5 — PREMIUM BENTO GRID
 ═══════════════════════════════════════════════════════════════ */
-const HowItWorks = () => (
-  <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-20">
-    <div className="text-center">
-      <SectionLabel>How it works</SectionLabel>
-      <SectionHeading>Up and running in minutes</SectionHeading>
+const BentoGrid = () => (
+  <section className="mx-auto max-w-7xl px-6 py-24">
+    <div className="text-center mb-14">
+      <SectionPill>Feature Grid</SectionPill>
+      <SectionHeading>Everything Your Campus<br /><GradientText from="#f59e0b" via="#ef4444" to="#e040fb">Needs to Thrive.</GradientText></SectionHeading>
     </div>
 
-    <div className="mt-14 grid gap-6 md:grid-cols-3">
-      {steps.map((step, i) => (
+    <div className="grid gap-4 md:grid-cols-3">
+      {bentoFeatures.map((feat, i) => (
         <motion.div
-          key={step.title}
-          initial={{ opacity: 0, y: 20 }}
+          key={feat.title}
+          initial={{ opacity: 0, y: 22 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.1 }}
-          whileHover={{ y: -4 }}
-          className="group relative overflow-hidden rounded-2xl border border-white/[0.09] bg-white/[0.05] p-7 backdrop-blur-xl transition-all duration-300 hover:border-indigo-500/20 hover:bg-white/[0.08]"
-          style={{ boxShadow: '0 1px 0 rgba(255,255,255,0.08) inset, 0 8px 32px rgba(0,0,0,0.35)' }}
+          transition={{ delay: i * 0.06 }}
+          whileHover={{ y: -5, scale: 1.01 }}
+          className={`group relative overflow-hidden rounded-3xl p-6 cursor-default ${feat.span}`}
+          style={{
+            background: `${feat.accent}0a`,
+            border: `1px solid ${feat.accent}22`,
+            boxShadow: '0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 32px rgba(0,0,0,0.35)',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 40px ${feat.accent}25, 0 8px 32px rgba(0,0,0,0.45)`; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 32px rgba(0,0,0,0.35)'; }}
         >
-          {/* Corner ambient */}
-          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-br from-indigo-500/[0.15] to-violet-500/[0.10] blur-xl transition-all duration-500 group-hover:scale-150" />
+          {/* Corner glow */}
+          <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"
+            style={{ background: `${feat.accent}15` }} />
 
-          {/* Big step number — visible on dark */}
-          <p className="text-6xl font-black text-indigo-500/[0.18] transition-all duration-300 group-hover:text-indigo-500/[0.30]">
-            {step.num}
-          </p>
+          <div className="relative flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+              style={{ background: `${feat.accent}18`, border: `1px solid ${feat.accent}30` }}>
+              <feat.icon className="h-5 w-5" style={{ color: feat.accent }} />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white sch-heading">{feat.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed sch-body" style={{ color: 'rgba(255,255,255,0.5)' }}>{feat.desc}</p>
+            </div>
+          </div>
 
-          {/* FIXED: was text-slate-900 */}
-          <h3 className="mt-1 text-xl font-bold text-white">{step.title}</h3>
-          {/* FIXED: was text-slate-500 */}
-          <p className="mt-2 text-sm leading-relaxed text-slate-400">{step.text}</p>
-
-          <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-indigo-400 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
-            Learn more <ChevronRight className="h-3.5 w-3.5" />
+          <div className="relative mt-4 flex items-center gap-1.5 text-xs font-semibold sch-body opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+            style={{ color: feat.accent }}>
+            Explore <ChevronRight className="h-3.5 w-3.5" />
           </div>
         </motion.div>
       ))}
@@ -802,51 +1043,285 @@ const HowItWorks = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   TESTIMONIALS — FIXED: was bg-white/80 text-slate-700/900
+   SECTION 6 — LIVE METRICS
+═══════════════════════════════════════════════════════════════ */
+const LiveMetrics = () => (
+  <section className="sch-section-bg border-y py-24" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+    <div className="mx-auto max-w-7xl px-6">
+      <div className="text-center mb-14">
+        <SectionPill>Platform Metrics</SectionPill>
+        <SectionHeading><GradientText from="#06b6d4" via="#a855f7" to="#e040fb">Numbers</GradientText> That Speak.</SectionHeading>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+        {metricsList.map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.07 }}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className="relative rounded-3xl p-6 overflow-hidden sch-glass-card"
+          >
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full blur-2xl"
+              style={{ background: `${m.color}20` }} />
+            <div className="relative">
+              <p className="text-4xl font-black sch-stat" style={{ color: m.color }}>
+                <AnimatedCounter
+                  target={m.value}
+                  suffix={m.suffix}
+                  decimals={m.value % 1 !== 0 ? 1 : 0}
+                />
+              </p>
+              <p className="mt-2 text-sm font-medium text-white sch-body">{m.label}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 7 — TECH ARCHITECTURE
+═══════════════════════════════════════════════════════════════ */
+const TechArchitecture = () => {
+  const layers = [
+    { label: 'Frontend Layer', techs: ['React', 'Vite'], color: '#06b6d4' },
+    { label: 'API & Auth', techs: ['Express', 'JWT'], color: '#e040fb' },
+    { label: 'Business Logic', techs: ['Node.js'], color: '#a855f7' },
+    { label: 'Data Layer', techs: ['MySQL'], color: '#10b981' },
+    { label: 'Deployment', techs: ['Vercel', 'Render'], color: '#f59e0b' },
+  ];
+
+  return (
+    <section className="mx-auto max-w-7xl px-6 py-24">
+      <div className="text-center mb-14">
+        <SectionPill>Architecture</SectionPill>
+        <SectionHeading>Built on a Rock-Solid<br /><GradientText from="#10b981" via="#06b6d4" to="#a855f7">Tech Foundation.</GradientText></SectionHeading>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+          className="sch-body mx-auto mt-4 max-w-lg text-base" style={{ color: 'rgba(255,255,255,0.45)' }}
+        >
+          Every layer chosen for performance, security, and developer experience.
+        </motion.p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-10 items-center">
+        {/* Architecture pipeline */}
+        <div className="space-y-3">
+          {layers.map((layer, i) => (
+            <motion.div
+              key={layer.label}
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-center gap-4 rounded-2xl px-5 py-4"
+              style={{ background: `${layer.color}09`, border: `1px solid ${layer.color}22` }}
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+                style={{ background: `${layer.color}20` }}>
+                <span className="text-xs font-black sch-stat" style={{ color: layer.color }}>{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-widest sch-body mb-1" style={{ color: layer.color }}>{layer.label}</p>
+                <div className="flex gap-2">
+                  {layer.techs.map((t) => (
+                    <span key={t} className="rounded-lg px-2 py-0.5 text-xs font-semibold sch-body text-white"
+                      style={{ background: `${layer.color}15`, border: `1px solid ${layer.color}30` }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {i < layers.length - 1 && (
+                <ArrowRight className="h-4 w-4 shrink-0" style={{ color: `${layer.color}60` }} />
+              )}
+            </motion.div>
+          ))}
+          {/* Connecting arrows */}
+        </div>
+
+        {/* Tech stack grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {techStack.map((tech, i) => (
+            <motion.div
+              key={tech.name}
+              initial={{ opacity: 0, scale: 0.85 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -3, scale: 1.04 }}
+              className="group relative rounded-2xl p-4 sch-glass-card"
+            >
+              <div className="absolute -right-2 -top-2 h-16 w-16 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: `${tech.color}30` }} />
+              <div className="relative flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `${tech.color}18`, border: `1px solid ${tech.color}30` }}>
+                  <tech.icon className="h-4 w-4" style={{ color: tech.color }} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white sch-heading">{tech.name}</p>
+                  <p className="text-[10px] sch-body" style={{ color: 'rgba(255,255,255,0.4)' }}>{tech.category}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 8 — AI INTELLIGENCE
+═══════════════════════════════════════════════════════════════ */
+const AIIntelligence = () => {
+  const aiFeatures = [
+    { label: 'Anomaly Detection', desc: 'Flags unusual attendance or behavioral patterns instantly.', icon: Radar, color: '#e040fb' },
+    { label: 'Predictive Alerts', desc: 'Warns students of attendance risk before it hits thresholds.', icon: Brain, color: '#a855f7' },
+    { label: 'Smart Automation', desc: 'Auto-schedules, auto-notifies, auto-reports — hands free.', icon: Zap, color: '#06b6d4' },
+    { label: 'Campus Analytics', desc: 'Live occupancy, energy, and utilization heatmaps.', icon: BarChart3, color: '#10b981' },
+    { label: 'AI Placement Match', desc: 'Matches student profiles to active recruiter requirements.', icon: TrendingUp, color: '#f59e0b' },
+    { label: 'Intelligent Routing', desc: 'Routes communications to the right person, right time.', icon: Workflow, color: '#ef4444' },
+  ];
+
+  return (
+    <section className="sch-section-bg border-y py-24" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="text-center mb-14">
+          <SectionPill>AI Intelligence Layer</SectionPill>
+          <SectionHeading>A Campus That<br /><GradientText from="#e040fb" via="#a855f7" to="#ec4899">Thinks for Itself.</GradientText></SectionHeading>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+            className="sch-body mx-auto mt-4 max-w-lg text-base" style={{ color: 'rgba(255,255,255,0.45)' }}
+          >
+            AI woven into every layer — from attendance anomalies to placement predictions.
+          </motion.p>
+        </div>
+
+        {/* Neural visual + grid */}
+        <div className="grid md:grid-cols-2 gap-10 items-center">
+          {/* Left — AI visual */}
+          <div className="relative flex items-center justify-center" style={{ height: 380 }}>
+            {/* Rings */}
+            <div className="absolute rounded-full sch-orbit-ring"
+              style={{ width: 320, height: 320, border: '1px solid rgba(224,64,251,0.15)' }} />
+            <div className="absolute rounded-full sch-orbit-ring-rev"
+              style={{ width: 220, height: 220, border: '1px dashed rgba(168,85,247,0.2)' }} />
+
+            {/* Center brain */}
+            <div className="relative flex flex-col items-center justify-center rounded-full z-10"
+              style={{
+                width: 120, height: 120,
+                background: 'linear-gradient(135deg, rgba(224,64,251,0.25), rgba(168,85,247,0.2))',
+                border: '1px solid rgba(224,64,251,0.4)',
+                boxShadow: '0 0 60px rgba(224,64,251,0.3)',
+              }}>
+              <Brain className="h-10 w-10" style={{ color: '#e040fb' }} />
+            </div>
+
+            {/* Orbiting nodes */}
+            {[
+              { label: 'Anomaly', color: '#e040fb', angle: 0 },
+              { label: 'Predict', color: '#a855f7', angle: 72 },
+              { label: 'Route', color: '#06b6d4', angle: 144 },
+              { label: 'Match', color: '#10b981', angle: 216 },
+              { label: 'Alert', color: '#f59e0b', angle: 288 },
+            ].map((node) => {
+              const rad = (node.angle - 90) * (Math.PI / 180);
+              const r = 150;
+              return (
+                <motion.div
+                  key={node.label}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                  className="absolute flex flex-col items-center"
+                  style={{
+                    left: `calc(50% + ${r * Math.cos(rad)}px)`,
+                    top: `calc(50% + ${r * Math.sin(rad)}px)`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full text-[10px] font-bold sch-stat"
+                    style={{ background: `${node.color}20`, border: `1px solid ${node.color}40`, color: node.color }}>
+                    {node.label.slice(0, 2)}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Right — feature list */}
+          <div className="grid gap-3">
+            {aiFeatures.map((feat, i) => (
+              <motion.div
+                key={feat.label}
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07 }}
+                className="flex items-start gap-3 rounded-2xl p-4"
+                style={{ background: `${feat.color}08`, border: `1px solid ${feat.color}18` }}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                  style={{ background: `${feat.color}18` }}>
+                  <feat.icon className="h-4 w-4" style={{ color: feat.color }} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white sch-heading">{feat.label}</p>
+                  <p className="mt-0.5 text-xs sch-body" style={{ color: 'rgba(255,255,255,0.5)' }}>{feat.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 9 — TESTIMONIALS
 ═══════════════════════════════════════════════════════════════ */
 const Testimonials = () => (
-  <section id="voices" className="mx-auto max-w-6xl px-4 py-20">
-    <div className="text-center">
-      <SectionLabel>Voices from campus</SectionLabel>
-      <SectionHeading>Loved by students &amp; faculty</SectionHeading>
+  <section className="mx-auto max-w-7xl px-6 py-24">
+    <div className="text-center mb-14">
+      <SectionPill>Social Proof</SectionPill>
+      <SectionHeading><GradientText from="#f59e0b" via="#ef4444" to="#e040fb">Loved</GradientText> by Campuses.</SectionHeading>
     </div>
 
-    <div className="mt-12 grid gap-6 md:grid-cols-2">
+    <div className="grid gap-5 md:grid-cols-3">
       {testimonials.map((t, i) => (
         <motion.div
           key={t.name}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.08 }}
-          whileHover={{ y: -4 }}
+          transition={{ delay: i * 0.1 }}
+          whileHover={{ y: -5 }}
+          className="relative rounded-3xl p-6 sch-glass-card flex flex-col"
         >
-          <div
-            className="h-full rounded-2xl border border-white/[0.09] p-7 backdrop-blur-xl"
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              boxShadow: '0 1px 0 rgba(255,255,255,0.10) inset, 0 8px 32px rgba(0,0,0,0.35)',
-            }}
-          >
-            {/* Stars */}
-            <div className="mb-4 flex">
-              {Array.from({ length: t.rating }).map((_, j) => (
-                <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400" />
-              ))}
+          <div className="flex mb-4">
+            {Array.from({ length: t.rating }).map((_, j) => (
+              <Star key={j} className="h-4 w-4" style={{ fill: '#f59e0b', color: '#f59e0b' }} />
+            ))}
+          </div>
+          <p className="text-sm leading-relaxed italic sch-body flex-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
+            "{t.quote}"
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${t.color} text-xs font-bold text-white sch-heading`}>
+              {t.avatar}
             </div>
-
-            {/* FIXED: was text-slate-700 italic */}
-            <p className="text-base italic leading-relaxed text-slate-300">"{t.quote}"</p>
-
-            <div className="mt-5 flex items-center gap-3">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${t.color} text-xs font-bold text-white shadow-lg`}>
-                {t.avatar}
-              </div>
-              <div>
-                {/* FIXED: was text-slate-900 */}
-                <p className="text-sm font-bold text-white">{t.name}</p>
-                <p className="text-xs text-slate-500">{t.role}</p>
-              </div>
+            <div>
+              <p className="text-sm font-bold text-white sch-heading">{t.name}</p>
+              <p className="text-xs sch-body" style={{ color: 'rgba(255,255,255,0.4)' }}>{t.role}</p>
             </div>
           </div>
         </motion.div>
@@ -856,63 +1331,77 @@ const Testimonials = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   CTA — already mostly dark-correct, minor polish
+   SECTION 10 — FINAL DRAMATIC CTA
 ═══════════════════════════════════════════════════════════════ */
-const CTA = () => (
-  <section className="mx-auto max-w-5xl px-4 pb-28">
+const FinalCTA = () => (
+  <section className="mx-auto max-w-6xl px-6 pb-28">
     <motion.div
       initial={{ opacity: 0, scale: 0.97 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-600 p-[1.5px] shadow-2xl shadow-violet-900/40"
+      className="relative overflow-hidden rounded-[2.5rem] p-[1px]"
+      style={{
+        background: 'linear-gradient(135deg, #e040fb, #7c3aed, #06b6d4, #10b981)',
+        boxShadow: '0 0 80px rgba(224,64,251,0.25), 0 0 40px rgba(6,182,212,0.15)',
+      }}
     >
-      <div className="relative overflow-hidden rounded-[2rem] bg-[#070b1f] px-8 py-14 text-center text-white">
-        <div className="pointer-events-none absolute -left-20 top-0 h-48 w-48 rounded-full bg-indigo-500/[0.15] blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-48 w-48 rounded-full bg-violet-500/[0.15] blur-3xl" />
-        <GridOverlay />
+      <div className="relative overflow-hidden rounded-[2.5rem] px-8 py-20 text-center"
+        style={{ background: '#07041a' }}>
+        {/* Bg orbs */}
+        <div className="absolute -left-24 top-0 h-64 w-64 rounded-full blur-3xl" style={{ background: 'rgba(224,64,251,0.12)' }} />
+        <div className="absolute -right-24 bottom-0 h-64 w-64 rounded-full blur-3xl" style={{ background: 'rgba(6,182,212,0.10)' }} />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"
+          style={{ background: 'rgba(124,58,237,0.08)' }} />
+
+        {/* Grid */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+        }} />
 
         <div className="relative">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80 backdrop-blur"
+            initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold sch-body"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)' }}
           >
-            <LiveDot color="bg-cyan-400" /> Ready to deploy
+            <LiveDot color="#10b981" /> Production-ready · Deploy in minutes
           </motion.div>
 
-          <h2 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">
-            Ready to impress the judges?
+          <h2 className="sch-heading text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">
+            The Future of<br />
+            <GradientText from="#e040fb" via="#7c3aed" to="#06b6d4">Campus Intelligence</GradientText><br />
+            Starts Here.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-white/60">
-            Spin up the API, seed demo users, and walk through role-based dashboards — polished UI, realtime signals, and a credible data model.
+
+          <p className="sch-body mx-auto mt-5 max-w-2xl text-base" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Spin up the full platform, explore role-based dashboards, and experience enterprise-grade
+            campus management — built for recruiters, judged by engineers.
           </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link to="/register">
               <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-slate-900 shadow-xl shadow-white/20 transition hover:shadow-white/30"
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                className="sch-primary-btn sch-body flex items-center gap-2 rounded-xl px-8 py-4 text-sm font-bold text-white"
               >
-                Create your hub <ArrowRight className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" /> Launch Your Campus Hub <ArrowRight className="h-4 w-4" />
               </motion.button>
             </Link>
             <Link to="/contact">
               <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                className="sch-ghost-btn sch-body flex items-center gap-2 rounded-xl px-8 py-4 text-sm font-semibold text-white"
               >
-                Talk to us
+                Schedule a Demo
               </motion.button>
             </Link>
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-white/50">
-            {['No credit card required', 'JWT-secured APIs', 'Socket.IO realtime'].map((item) => (
+          <div className="mt-10 flex flex-wrap justify-center gap-8 text-sm sch-body" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            {['No credit card required', 'JWT-secured APIs', 'Socket.IO realtime', 'Open source ready'].map((item) => (
               <div key={item} className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-cyan-400" /> {item}
+                <CheckCircle2 className="h-4 w-4" style={{ color: '#10b981' }} /> {item}
               </div>
             ))}
           </div>
@@ -923,30 +1412,111 @@ const CTA = () => (
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   ROOT — CRITICAL FIX:
-   Removed `bg-gradient-to-b from-slate-50 via-white` which was
-   painting a white/light gradient over the dark canvas.
-   Now transparent so PublicLayout's dark background shows through.
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+const Footer = () => (
+  <footer className="relative border-t" style={{ borderColor: 'rgba(255,255,255,0.07)', background: 'rgba(0,0,0,0.3)' }}>
+    <div className="mx-auto max-w-7xl px-6 py-16">
+      <div className="grid gap-10 md:grid-cols-5">
+
+        {/* Brand */}
+        <div className="md:col-span-2">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl"
+              style={{ background: 'linear-gradient(135deg, #e040fb, #7c3aed)' }}>
+              <Atom className="h-5 w-5 text-white" />
+            </div>
+            <p className="text-lg font-bold text-white sch-heading">Smart Campus Hub</p>
+          </div>
+          <p className="text-sm leading-relaxed sch-body mb-6" style={{ color: 'rgba(255,255,255,0.45)', maxWidth: 280 }}>
+            A flagship full-stack campus intelligence platform — unifying students, faculty, and administrators
+            in a single production-grade digital ecosystem.
+          </p>
+          <div className="space-y-2">
+            <a href="tel:+918850706982" className="flex items-center gap-2 text-sm sch-body transition-colors"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+              onMouseEnter={(e) => e.target.style.color = '#e040fb'}
+              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.45)'}>
+              📞 +91 8850706982
+            </a>
+            <a href="mailto:yashsurve2019@gmail.com" className="flex items-center gap-2 text-sm sch-body transition-colors"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+              onMouseEnter={(e) => e.target.style.color = '#06b6d4'}
+              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.45)'}>
+              ✉️ yashsurve2019@gmail.com
+            </a>
+            <a href="https://github.com/YashSurve2006" target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 text-sm sch-body transition-colors"
+              style={{ color: 'rgba(255,255,255,0.45)' }}
+              onMouseEnter={(e) => e.target.style.color = '#a855f7'}
+              onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.45)'}>
+              <GitBranch className="h-3.5 w-3.5" /> github.com/YashSurve2006
+            </a>
+          </div>
+        </div>
+
+        {/* Link columns */}
+        {Object.entries(footerLinks).map(([col, links]) => (
+          <div key={col}>
+            <p className="text-xs font-bold uppercase tracking-widest sch-body mb-4" style={{ color: '#e040fb' }}>{col}</p>
+            <ul className="space-y-2">
+              {links.map((link) => (
+                <li key={link}>
+                  <a href="#" className="text-sm sch-body transition-colors"
+                    style={{ color: 'rgba(255,255,255,0.45)' }}
+                    onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.85)'}
+                    onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.45)'}>
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom bar */}
+      <div className="mt-14 flex flex-col items-center justify-between gap-4 pt-7 sm:flex-row"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <p className="text-xs sch-body" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          © 2024 Smart Campus Hub — Crafted with ♥ by Yash Surve
+        </p>
+        <div className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs sch-body"
+          style={{ background: 'rgba(224,64,251,0.1)', border: '1px solid rgba(224,64,251,0.2)', color: '#e040fb' }}>
+          <LiveDot color="#e040fb" /> All systems operational
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+/* ═══════════════════════════════════════════════════════════════
+   ROOT EXPORT
 ═══════════════════════════════════════════════════════════════ */
 export default function Landing() {
   return (
-    <div className="relative overflow-hidden">
-      <MouseGlow />
+    <>
+      <FontLoader />
+      <StyleInjector />
+      <div className="relative overflow-x-hidden">
+        <AuroraBackground />
+        <MouseGlow />
 
-      {/* Subtle ambient orbs — reduced opacity vs original */}
-      <GradientOrb className="h-96 w-96 -left-32 top-10 bg-indigo-600/[0.12]" />
-      <GradientOrb className="h-[500px] w-[500px] -right-40 top-32 bg-violet-600/[0.09]" />
-      <GradientOrb className="h-80 w-80 left-1/4 top-[60%] bg-cyan-500/[0.08]" />
-      <GradientOrb className="h-64 w-64 right-1/3 top-[80%] bg-indigo-500/[0.07]" />
+        <div className="relative z-10">
+          <Hero />
+          <InstitutionTicker />
 
-      <Hero />
-      <TrustedBy />
-      <Features />
-      <BentoGrid />
-      <RoleDashboards />
-      <HowItWorks />
-      <Testimonials />
-      <CTA />
-    </div>
+          <Transformation />
+          <ProductShowcase />
+          <BentoGrid />
+          <LiveMetrics />
+          <TechArchitecture />
+          <AIIntelligence />
+          <Testimonials />
+          <FinalCTA />
+          <Footer />
+        </div>
+      </div>
+    </>
   );
 }

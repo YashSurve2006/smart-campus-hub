@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Upload, User, CheckCircle2, XCircle, Eye, EyeOff,
   Clock, LogIn, Settings, Key, Camera, Zap, Star, Activity,
@@ -40,11 +40,11 @@ const PW_REQS = [
 
 /* ─── activity icon mapping ───────────────────────────── */
 function activityIcon(action) {
-  if (action.includes('login')) return { Icon: LogIn, color: 'text-emerald-400', bg: 'bg-emerald-400/10' };
-  if (action.includes('password')) return { Icon: Key, color: 'text-amber-400', bg: 'bg-amber-400/10' };
-  if (action.includes('avatar')) return { Icon: Camera, color: 'text-violet-400', bg: 'bg-violet-400/10' };
-  if (action.includes('profile')) return { Icon: Settings, color: 'text-blue-400', bg: 'bg-blue-400/10' };
-  return { Icon: Activity, color: 'text-slate-400', bg: 'bg-slate-400/10' };
+  if (action.includes('login')) return { Icon: LogIn, color: 'text-emerald-400', bg: 'bg-emerald-400/10', glow: 'shadow-emerald-500/20', border: 'border-emerald-500/20' };
+  if (action.includes('password')) return { Icon: Key, color: 'text-amber-400', bg: 'bg-amber-400/10', glow: 'shadow-amber-500/20', border: 'border-amber-500/20' };
+  if (action.includes('avatar')) return { Icon: Camera, color: 'text-violet-400', bg: 'bg-violet-400/10', glow: 'shadow-violet-500/20', border: 'border-violet-500/20' };
+  if (action.includes('profile')) return { Icon: Settings, color: 'text-cyan-400', bg: 'bg-cyan-400/10', glow: 'shadow-cyan-500/20', border: 'border-cyan-500/20' };
+  return { Icon: Activity, color: 'text-slate-400', bg: 'bg-slate-400/10', glow: 'shadow-slate-500/20', border: 'border-slate-500/20' };
 }
 
 function relativeTime(dateStr) {
@@ -60,40 +60,38 @@ function relativeTime(dateStr) {
 
 /* ─── stagger animation presets ──────────────────────── */
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 28 },
   visible: (i = 0) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: i * 0.07 },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.08 },
   }),
 };
 
-/* ─── reusable premium input ─────────────────────────── */
-function PremiumInput({ label, id, type = 'text', value, onChange, isDark, suffix, minLength }) {
+/* ─── reusable premium dark input ─────────────────────── */
+function PremiumInput({ label, id, type = 'text', value, onChange, suffix, minLength }) {
   const [focused, setFocused] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const isPw = type === 'password';
   const inputType = isPw ? (showPw ? 'text' : 'password') : type;
 
-  const base = isDark
-    ? 'bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20'
-    : 'bg-black/[0.03] border-black/[0.08] text-slate-900 placeholder:text-slate-400';
-
-  const focusRing = isDark
-    ? 'border-violet-500/60 shadow-[0_0_0_3px_rgba(139,92,246,0.15)]'
-    : 'border-blue-400/60 shadow-[0_0_0_3px_rgba(59,130,246,0.12)]';
-
   return (
     <div className="group relative">
       <label
         htmlFor={id}
-        className={`mb-1.5 block text-[11px] font-semibold tracking-widest uppercase transition-colors duration-200 ${focused
-          ? isDark ? 'text-violet-400' : 'text-blue-500'
-          : isDark ? 'text-white/40' : 'text-slate-500'
+        className={`mb-2 block text-[10px] font-bold tracking-[0.18em] uppercase transition-all duration-300 ${focused ? 'text-violet-400' : 'text-white/35'
           }`}
       >
         {label}
       </label>
       <div className="relative">
+        {/* animated border glow */}
+        <div
+          className={`absolute -inset-px rounded-xl transition-all duration-300 ${focused
+              ? 'bg-gradient-to-r from-violet-500/50 via-cyan-500/30 to-blue-500/50 opacity-100'
+              : 'bg-white/[0.06] opacity-100'
+            }`}
+          style={{ borderRadius: '13px' }}
+        />
         <input
           id={id}
           type={inputType}
@@ -102,7 +100,9 @@ function PremiumInput({ label, id, type = 'text', value, onChange, isDark, suffi
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           minLength={minLength}
-          className={`w-full rounded-xl border px-4 py-3 text-sm font-medium outline-none transition-all duration-200 ${base} ${focused ? focusRing : ''
+          className={`relative w-full rounded-xl border bg-[#0a0a1a]/80 px-4 py-3 text-sm font-medium outline-none transition-all duration-300 backdrop-blur-sm ${focused
+              ? 'border-transparent text-white placeholder:text-white/20 shadow-[0_0_20px_rgba(139,92,246,0.15)]'
+              : 'border-white/[0.07] text-white/80 placeholder:text-white/15'
             } ${isPw ? 'pr-11' : ''}`}
         />
         {isPw && (
@@ -110,8 +110,7 @@ function PremiumInput({ label, id, type = 'text', value, onChange, isDark, suffi
             type="button"
             tabIndex={-1}
             onClick={() => setShowPw((v) => !v)}
-            className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-white/30 hover:text-white/60' : 'text-slate-400 hover:text-slate-600'
-              }`}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 transition-colors duration-200 hover:text-white/60"
           >
             {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -122,23 +121,76 @@ function PremiumInput({ label, id, type = 'text', value, onChange, isDark, suffi
   );
 }
 
-/* ─── section heading ─────────────────────────────────── */
-function SectionHead({ icon: Icon, title, subtitle, isDark, accent = 'text-violet-400' }) {
+/* ─── glass card base ─────────────────────────────────── */
+function NightCard({ children, className = '', glow = false, glowColor = 'violet' }) {
+  const glowMap = {
+    violet: 'shadow-[0_0_60px_rgba(139,92,246,0.08)]',
+    cyan: 'shadow-[0_0_60px_rgba(34,211,238,0.08)]',
+    amber: 'shadow-[0_0_60px_rgba(251,191,36,0.08)]',
+    emerald: 'shadow-[0_0_60px_rgba(52,211,153,0.08)]',
+  };
+
   return (
-    <div className="mb-6 flex items-start gap-3">
-      <div className={`mt-0.5 rounded-lg p-2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+    <div
+      className={`relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.025] backdrop-blur-2xl ${glow ? glowMap[glowColor] : ''
+        } ${className}`}
+    >
+      {/* inner top shine */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
+      {/* inner bottom line */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
+      {children}
+    </div>
+  );
+}
+
+/* ─── section heading ─────────────────────────────────── */
+function SectionHead({ icon: Icon, title, subtitle, accent = 'text-violet-400', accentBg = 'bg-violet-500/10', accentBorder = 'border-violet-500/20' }) {
+  return (
+    <div className="mb-7 flex items-start gap-4">
+      <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${accentBg} ${accentBorder}`}>
         <Icon className={`h-4 w-4 ${accent}`} />
       </div>
       <div>
-        <h2 className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-          {title}
-        </h2>
+        <h2 className="text-[15px] font-bold tracking-tight text-white">{title}</h2>
         {subtitle && (
-          <p className={`mt-0.5 text-xs ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{subtitle}</p>
+          <p className="mt-0.5 text-xs text-white/35">{subtitle}</p>
         )}
       </div>
     </div>
   );
+}
+
+/* ─── role config ──────────────────────────────────────── */
+function getRoleConfig(role) {
+  if (role === 'admin') return {
+    badge: 'from-violet-500/25 to-fuchsia-500/25 border-violet-400/30 text-violet-300',
+    ring: ['#8b5cf6', '#a855f7'],
+    orb1: 'bg-violet-600/15',
+    orb2: 'bg-fuchsia-600/10',
+    orb3: 'bg-cyan-600/8',
+    heroGrad: 'from-violet-600/20 via-fuchsia-600/10',
+    avatarGlow: 'bg-violet-500/40',
+  };
+  if (role === 'faculty') return {
+    badge: 'from-cyan-500/25 to-blue-500/25 border-cyan-400/30 text-cyan-300',
+    ring: ['#06b6d4', '#3b82f6'],
+    orb1: 'bg-cyan-600/12',
+    orb2: 'bg-blue-600/10',
+    orb3: 'bg-indigo-600/8',
+    heroGrad: 'from-cyan-600/15 via-blue-600/10',
+    avatarGlow: 'bg-cyan-500/40',
+  };
+  // student default
+  return {
+    badge: 'from-emerald-500/25 to-teal-500/25 border-emerald-400/30 text-emerald-300',
+    ring: ['#10b981', '#06b6d4'],
+    orb1: 'bg-emerald-600/12',
+    orb2: 'bg-teal-600/10',
+    orb3: 'bg-cyan-600/8',
+    heroGrad: 'from-emerald-600/15 via-teal-600/10',
+    avatarGlow: 'bg-emerald-500/40',
+  };
 }
 
 /* ─── main page ───────────────────────────────────────── */
@@ -146,7 +198,10 @@ export default function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const role = user?.role;
-  const isDark = role === 'admin';
+
+  // Always use dark futuristic styling for all roles
+  const isDark = true;
+  const rc = getRoleConfig(role);
 
   const [form, setForm] = useState({
     firstName: '', lastName: '', phone: '', specialization: '',
@@ -245,480 +300,575 @@ export default function ProfilePage() {
   ];
   const completionPct = Math.round((completionFields.filter(Boolean).length / completionFields.length) * 100);
 
-  /* role badge style */
-  const roleBadge =
-    role === 'admin' ? 'bg-violet-500/20 text-violet-300 border-violet-500/30' :
-      role === 'faculty' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
-        'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+  /* role badge */
+  const roleBadgeClass = `bg-gradient-to-r ${rc.badge}`;
 
-  const cardBase = isDark
-    ? 'bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl'
-    : 'bg-white/80 border border-black/[0.06] backdrop-blur-xl shadow-sm';
-
-  /* ── background gradient orbs ── */
+  /* ── ambient background orbs ── */
   const Orbs = () => (
-    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <motion.div
-        animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-        className={`absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full blur-[120px] ${isDark ? 'bg-violet-600/12' : 'bg-blue-300/25'
-          }`}
+        animate={{ x: [0, 50, 0], y: [0, -40, 0] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+        className={`absolute -top-40 -left-40 h-[700px] w-[700px] rounded-full blur-[140px] ${rc.orb1}`}
       />
       <motion.div
-        animate={{ x: [0, -30, 0], y: [0, 40, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-        className={`absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full blur-[120px] ${isDark ? 'bg-blue-600/10' : 'bg-violet-300/20'
-          }`}
+        animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 6 }}
+        className={`absolute -bottom-40 -right-40 h-[600px] w-[600px] rounded-full blur-[140px] ${rc.orb2}`}
       />
       <motion.div
-        animate={{ x: [0, 20, 0], y: [0, 20, 0] }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        className={`absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[150px] ${isDark ? 'bg-cyan-600/8' : 'bg-cyan-200/20'
-          }`}
+        animate={{ x: [0, 25, 0], y: [0, 25, 0] }}
+        transition={{ duration: 17, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        className={`absolute top-1/3 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full blur-[160px] ${rc.orb3}`}
+      />
+      {/* noise texture overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '200px 200px',
+        }}
       />
     </div>
   );
 
+  /* ── gradient submit button ── */
+  const GradBtn = ({ children, onClick, type = 'button', disabled, gradient, shadow }) => (
+    <motion.button
+      type={type}
+      onClick={onClick}
+      whileHover={{ scale: 1.02, y: -1 }}
+      whileTap={{ scale: 0.97 }}
+      disabled={disabled}
+      className={`relative inline-flex items-center gap-2 overflow-hidden rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 disabled:opacity-50 ${gradient} ${shadow}`}
+    >
+      {/* shine sweep */}
+      <motion.div
+        className="absolute inset-0 -skew-x-12 bg-white/10"
+        initial={{ x: '-150%' }}
+        whileHover={{ x: '250%' }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
+      />
+      <span className="relative flex items-center gap-2">{children}</span>
+    </motion.button>
+  );
+
   return (
-    <div className={`relative pb-20 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+    <div className="relative min-h-screen pb-24 text-white">
       <Orbs />
 
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-6">
 
-        {/* ── page heading ── */}
+        {/* ── breadcrumb + heading ── */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${isDark ? 'text-violet-400/70' : 'text-blue-500/70'}`}>
-              Account
-            </span>
-            <ChevronRight className={`h-3 w-3 ${isDark ? 'text-white/20' : 'text-slate-400'}`} />
-            <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${isDark ? 'text-white/50' : 'text-slate-500'}`}>
-              Profile
-            </span>
+          <div className="mb-3 flex items-center gap-1.5">
+            <span className="text-[9px] font-black tracking-[0.25em] uppercase text-white/25">Account</span>
+            <ChevronRight className="h-3 w-3 text-white/15" />
+            <span className="text-[9px] font-black tracking-[0.25em] uppercase text-white/40">Profile</span>
           </div>
-          <h1 className={`text-3xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          <h1 className="text-[28px] font-black tracking-tight text-white">
             Profile &amp; Settings
           </h1>
-          <p className={`mt-1 text-sm ${isDark ? 'text-white/40' : 'text-slate-500'}`}>
+          <p className="mt-1 text-sm text-white/35">
             Manage your identity, security, and account activity.
           </p>
         </motion.div>
 
-        {/* ── HERO PROFILE CARD ── */}
+        {/* ══ HERO PROFILE CARD ══════════════════════════════════════ */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1}>
-          <div className={`relative overflow-hidden rounded-2xl ${cardBase} p-6`}>
-            {/* subtle header gradient */}
-            <div className={`absolute inset-x-0 top-0 h-32 ${isDark
-              ? 'bg-gradient-to-br from-violet-600/15 via-blue-600/10 to-transparent'
-              : 'bg-gradient-to-br from-blue-100/80 via-violet-100/40 to-transparent'
-              }`} />
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] backdrop-blur-2xl">
 
-            <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
-              {/* avatar */}
-              <div className="group relative shrink-0">
-                <motion.div
-                  whileHover={{ scale: 1.04 }}
-                  className="relative h-24 w-24"
-                >
-                  {/* glow ring */}
-                  <motion.div
-                    animate={{ opacity: [0.4, 0.8, 0.4] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    className={`absolute -inset-1 rounded-2xl blur-md ${isDark ? 'bg-violet-500/30' : 'bg-blue-400/25'
-                      }`}
-                  />
-                  <div className={`relative h-24 w-24 overflow-hidden rounded-2xl border ${isDark ? 'border-white/10' : 'border-black/10'
-                    } bg-slate-800`}>
-                    {user?.avatarUrl ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_BASE || ''}${user.avatarUrl}`}
-                        alt=""
-                        className="h-full w-full object-cover"
+            {/* animated gradient border top */}
+            <div className="absolute inset-x-0 top-0 h-px">
+              <motion.div
+                className="h-full bg-gradient-to-r from-transparent via-violet-500/60 to-transparent"
+                animate={{ x: ['-100%', '100%'] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear', repeatDelay: 3 }}
+              />
+            </div>
+
+            {/* hero bg wash */}
+            <div className={`absolute inset-x-0 top-0 h-40 bg-gradient-to-b ${rc.heroGrad} to-transparent`} />
+
+            {/* decorative grid lines */}
+            <div
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+              }}
+            />
+
+            <div className="relative p-6 sm:p-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+
+                {/* ── avatar ── */}
+                <div className="group relative shrink-0 self-center sm:self-start">
+                  <motion.div whileHover={{ scale: 1.05 }} className="relative h-[88px] w-[88px]">
+                    {/* triple glow rings */}
+                    <motion.div
+                      animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.05, 1] }}
+                      transition={{ duration: 3.5, repeat: Infinity }}
+                      className={`absolute -inset-3 rounded-[22px] blur-xl ${rc.avatarGlow} opacity-50`}
+                    />
+                    <motion.div
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+                      className={`absolute -inset-1.5 rounded-[20px] blur-sm ${rc.avatarGlow} opacity-30`}
+                    />
+
+                    {/* main avatar frame */}
+                    <div className="relative h-[88px] w-[88px] overflow-hidden rounded-[18px] border border-white/[0.12] bg-[#0a0a1a]">
+                      {user?.avatarUrl ? (
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE || ''}${user.avatarUrl}`}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/5 to-transparent">
+                          <User className="h-9 w-9 text-white/15" />
+                        </div>
+                      )}
+
+                      {/* upload hover overlay */}
+                      <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 bg-black/70 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100">
+                        <motion.div
+                          initial={{ scale: 0.8 }}
+                          whileHover={{ scale: 1 }}
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20"
+                        >
+                          <Camera className="h-4 w-4 text-white" />
+                        </motion.div>
+                        <span className="text-[9px] font-bold tracking-widest uppercase text-white/80">Change</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={onAvatar} />
+                      </label>
+                    </div>
+
+                    {/* online indicator */}
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#080818] bg-emerald-500">
+                      <motion.span
+                        animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
+                        transition={{ duration: 2.5, repeat: Infinity }}
+                        className="absolute h-full w-full rounded-full bg-emerald-400"
                       />
-                    ) : (
-                      <div className={`flex h-full w-full items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-slate-100'
-                        }`}>
-                        <User className={`h-10 w-10 ${isDark ? 'text-white/20' : 'text-slate-400'}`} />
-                      </div>
-                    )}
-                    {/* hover overlay */}
-                    <label className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
-                      <Camera className="h-5 w-5 text-white" />
-                      <span className="text-[10px] font-semibold text-white">Change</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={onAvatar} />
-                    </label>
+                    </span>
+                  </motion.div>
+                </div>
+
+                {/* ── identity block ── */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-start gap-2 mb-1">
+                    <h2 className="text-xl font-black tracking-tight text-white leading-tight">
+                      {user?.firstName} {user?.lastName}
+                    </h2>
+                    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] bg-gradient-to-r ${rc.badge}`}>
+                      <Star className="h-2 w-2" />
+                      {user?.role}
+                    </span>
                   </div>
 
-                  {/* online pulse */}
-                  <span className="absolute bottom-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-slate-900 bg-emerald-400">
-                    <motion.span
-                      animate={{ scale: [1, 1.8, 1], opacity: [0.8, 0, 0.8] }}
-                      transition={{ duration: 2.5, repeat: Infinity }}
-                      className="absolute h-full w-full rounded-full bg-emerald-400"
-                    />
-                  </span>
-                </motion.div>
-              </div>
+                  <p className="text-sm text-white/40 mb-3">{user?.email}</p>
 
-              {/* info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h2 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    {user?.firstName} {user?.lastName}
-                  </h2>
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${roleBadge}`}>
-                    <Star className="h-2.5 w-2.5" />
-                    {user?.role}
-                  </span>
+                  {user?.lastLoginAt && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/30">
+                      <Clock className="h-3 w-3" />
+                      Last login: {new Date(user.lastLoginAt).toLocaleString()}
+                    </div>
+                  )}
+
+                  {user?.profile && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        user.profile.departmentName,
+                        user.profile.studentCode && `Code: ${user.profile.studentCode}`,
+                        user.profile.employeeCode && `EMP: ${user.profile.employeeCode}`,
+                        user.profile.designation,
+                        user.profile.semester != null && `Sem ${user.profile.semester}`,
+                      ].filter(Boolean).map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-lg border border-white/[0.07] bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-white/45"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className={`text-sm ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{user?.email}</p>
 
-                {user?.lastLoginAt && (
-                  <p className={`mt-2 flex items-center gap-1.5 text-xs ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-                    <Clock className="h-3 w-3" />
-                    Last login: {new Date(user.lastLoginAt).toLocaleString()}
+                {/* ── completion ring — desktop ── */}
+                <div className="hidden sm:flex flex-col items-center gap-2 shrink-0">
+                  <div className="relative h-16 w-16">
+                    <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="26" strokeWidth="4"
+                        stroke="rgba(255,255,255,0.05)"
+                        fill="none"
+                      />
+                      {/* track glow */}
+                      <circle cx="32" cy="32" r="26" strokeWidth="4"
+                        stroke="rgba(255,255,255,0.03)"
+                        fill="none"
+                        strokeDasharray="163.4"
+                        strokeDashoffset="0"
+                      />
+                      <motion.circle
+                        cx="32" cy="32" r="26" strokeWidth="4"
+                        fill="none"
+                        stroke={`url(#ring-grad-${role})`}
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 26}`}
+                        initial={{ strokeDashoffset: 2 * Math.PI * 26 }}
+                        animate={{ strokeDashoffset: 2 * Math.PI * 26 * (1 - completionPct / 100) }}
+                        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
+                        filter={`url(#ring-glow-${role})`}
+                      />
+                      <defs>
+                        <linearGradient id={`ring-grad-${role}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={rc.ring[0]} />
+                          <stop offset="100%" stopColor={rc.ring[1]} />
+                        </linearGradient>
+                        <filter id={`ring-glow-${role}`}>
+                          <feGaussianBlur stdDeviation="2" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      </defs>
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-[14px] font-black text-white">
+                      {completionPct}%
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-center font-bold tracking-widest uppercase text-white/25">
+                    Complete
                   </p>
-                )}
-
-                {user?.profile && (
-                  <div className={`mt-3 flex flex-wrap gap-2`}>
-                    {[
-                      user.profile.departmentName && `${user.profile.departmentName}`,
-                      user.profile.studentCode && `Code: ${user.profile.studentCode}`,
-                      user.profile.employeeCode && `EMP: ${user.profile.employeeCode}`,
-                      user.profile.designation && user.profile.designation,
-                      user.profile.semester != null && `Sem ${user.profile.semester}`,
-                    ].filter(Boolean).map((tag) => (
-                      <span key={tag} className={`rounded-lg px-2.5 py-1 text-[11px] font-medium ${isDark ? 'bg-white/5 text-white/50' : 'bg-slate-100 text-slate-600'
-                        }`}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* completion ring — desktop */}
-              <div className="hidden sm:flex flex-col items-center gap-1.5 shrink-0">
-                <div className="relative h-14 w-14">
-                  <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
-                    <circle cx="28" cy="28" r="22" strokeWidth="5"
-                      className={isDark ? 'stroke-white/5' : 'stroke-slate-100'}
-                      fill="none"
-                    />
-                    <motion.circle
-                      cx="28" cy="28" r="22" strokeWidth="5"
-                      fill="none"
-                      stroke="url(#ring-grad)"
-                      strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 22}`}
-                      initial={{ strokeDashoffset: 2 * Math.PI * 22 }}
-                      animate={{ strokeDashoffset: 2 * Math.PI * 22 * (1 - completionPct / 100) }}
-                      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
-                    />
-                    <defs>
-                      <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#8b5cf6" />
-                        <stop offset="100%" stopColor="#3b82f6" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <span className={`absolute inset-0 flex items-center justify-center text-[13px] font-black ${isDark ? 'text-white' : 'text-slate-900'
-                    }`}>
-                    {completionPct}%
-                  </span>
                 </div>
-                <p className={`text-[10px] text-center font-semibold tracking-wide ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-                  Profile<br />complete
-                </p>
+              </div>
+
+              {/* mobile completion bar */}
+              <div className="mt-5 sm:hidden">
+                <div className="mb-2 flex justify-between">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-white/30">Profile completion</span>
+                  <span className="text-[10px] font-black text-white/60">{completionPct}%</span>
+                </div>
+                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/[0.05]">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(to right, ${rc.ring[0]}, ${rc.ring[1]})` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionPct}%` }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                  />
+                  {/* glow trail */}
+                  <motion.div
+                    className="absolute top-0 h-full w-8 blur-sm"
+                    style={{ background: `linear-gradient(to right, transparent, ${rc.ring[1]})` }}
+                    initial={{ left: '-10%' }}
+                    animate={{ left: `${Math.max(completionPct - 5, 0)}%` }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* mobile completion bar */}
-            <div className="mt-4 sm:hidden">
-              <div className="mb-1 flex justify-between text-[10px] font-semibold">
-                <span className={isDark ? 'text-white/40' : 'text-slate-500'}>Profile completion</span>
-                <span className={isDark ? 'text-violet-400' : 'text-blue-600'}>{completionPct}%</span>
-              </div>
-              <div className={`h-1.5 w-full overflow-hidden rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-blue-500"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${completionPct}%` }}
-                  transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
-                />
-              </div>
-            </div>
+            {/* bottom shine */}
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
           </div>
         </motion.div>
 
-        {/* ── CONTACT & ACADEMIC ── */}
+        {/* ══ CONTACT & ACADEMIC ═════════════════════════════════════ */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2}>
-          <div className={`rounded-2xl ${cardBase} p-6`}>
-            <SectionHead
-              icon={User}
-              title="Contact & Academic"
-              subtitle="Update your personal and academic details"
-              isDark={isDark}
-              accent={isDark ? 'text-blue-400' : 'text-blue-500'}
-            />
-            <form className="grid gap-4 sm:grid-cols-2" onSubmit={saveProfile}>
-              <PremiumInput
-                id="firstName" label="First name"
-                value={form.firstName}
-                onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
-                isDark={isDark}
+          <NightCard glow glowColor="violet">
+            <div className="p-6 sm:p-7">
+              <SectionHead
+                icon={User}
+                title="Contact & Academic"
+                subtitle="Update your personal and academic details"
+                accent="text-blue-400"
+                accentBg="bg-blue-500/10"
+                accentBorder="border-blue-500/20"
               />
-              <PremiumInput
-                id="lastName" label="Last name"
-                value={form.lastName}
-                onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
-                isDark={isDark}
-              />
-              <div className="sm:col-span-2">
+
+              <form className="grid gap-4 sm:grid-cols-2" onSubmit={saveProfile}>
                 <PremiumInput
-                  id="phone" label="Phone number"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  id="firstName" label="First name"
+                  value={form.firstName}
+                  onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
                   isDark={isDark}
                 />
-              </div>
-              {role === 'faculty' && (
+                <PremiumInput
+                  id="lastName" label="Last name"
+                  value={form.lastName}
+                  onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                  isDark={isDark}
+                />
                 <div className="sm:col-span-2">
                   <PremiumInput
-                    id="specialization" label="Specialization / research focus"
-                    value={form.specialization}
-                    onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))}
+                    id="phone" label="Phone number"
+                    value={form.phone}
+                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                     isDark={isDark}
                   />
                 </div>
-              )}
-              <div className="sm:col-span-2 flex">
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={savingProfile}
-                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 disabled:opacity-60 ${isDark
-                    ? 'bg-gradient-to-r from-violet-600 to-blue-600 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40'
-                    : 'bg-gradient-to-r from-blue-500 to-violet-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40'
-                    }`}
-                >
-                  {savingProfile ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                      className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                {role === 'faculty' && (
+                  <div className="sm:col-span-2">
+                    <PremiumInput
+                      id="specialization" label="Specialization / research focus"
+                      value={form.specialization}
+                      onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))}
+                      isDark={isDark}
                     />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4" />
-                  )}
-                  {savingProfile ? 'Saving…' : 'Save changes'}
-                </motion.button>
-              </div>
-            </form>
-          </div>
+                  </div>
+                )}
+
+                <div className="sm:col-span-2 flex pt-1">
+                  <GradBtn
+                    type="submit"
+                    disabled={savingProfile}
+                    gradient="bg-gradient-to-r from-violet-600 to-blue-600"
+                    shadow="shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:shadow-[0_4px_30px_rgba(139,92,246,0.45)]"
+                  >
+                    {savingProfile ? (
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                        className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                      />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4" />
+                    )}
+                    {savingProfile ? 'Saving…' : 'Save changes'}
+                  </GradBtn>
+                </div>
+              </form>
+            </div>
+          </NightCard>
         </motion.div>
 
-        {/* ── SECURITY ── */}
+        {/* ══ SECURITY ════════════════════════════════════════════════ */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
-          <div className={`rounded-2xl ${cardBase} p-6`}>
-            <SectionHead
-              icon={Shield}
-              title="Security"
-              subtitle="Update your password and review security settings"
-              isDark={isDark}
-              accent="text-amber-400"
-            />
-
-            <form className="grid gap-4 sm:grid-cols-2" onSubmit={changePassword}>
-              <PremiumInput
-                id="currentPassword" label="Current password" type="password"
-                value={form.currentPassword}
-                onChange={(e) => setForm((f) => ({ ...f, currentPassword: e.target.value }))}
-                isDark={isDark}
+          <NightCard glow glowColor="amber">
+            <div className="p-6 sm:p-7">
+              <SectionHead
+                icon={Shield}
+                title="Security"
+                subtitle="Update your password and review security settings"
+                accent="text-amber-400"
+                accentBg="bg-amber-500/10"
+                accentBorder="border-amber-500/20"
               />
-              <div>
+
+              <form className="grid gap-4 sm:grid-cols-2" onSubmit={changePassword}>
                 <PremiumInput
-                  id="newPassword" label="New password" type="password"
-                  value={form.newPassword}
-                  onChange={(e) => setForm((f) => ({ ...f, newPassword: e.target.value }))}
+                  id="currentPassword" label="Current password" type="password"
+                  value={form.currentPassword}
+                  onChange={(e) => setForm((f) => ({ ...f, currentPassword: e.target.value }))}
                   isDark={isDark}
-                  minLength={8}
                 />
-                {/* strength bar */}
-                <AnimatePresence>
-                  {form.newPassword && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="mt-3 overflow-hidden"
-                    >
-                      <div className="flex gap-1 mb-2">
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="h-1 flex-1 overflow-hidden rounded-full"
+
+                <div>
+                  <PremiumInput
+                    id="newPassword" label="New password" type="password"
+                    value={form.newPassword}
+                    onChange={(e) => setForm((f) => ({ ...f, newPassword: e.target.value }))}
+                    isDark={isDark}
+                    minLength={8}
+                  />
+
+                  {/* strength indicator */}
+                  <AnimatePresence>
+                    {form.newPassword && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-4 overflow-hidden"
+                      >
+                        {/* segmented bar */}
+                        <div className="mb-2 flex gap-1.5">
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <div key={i} className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                              <motion.div
+                                className="absolute inset-0 rounded-full"
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: i <= pwScore ? 1 : 0 }}
+                                transition={{ duration: 0.35, delay: i * 0.06, ease: 'easeOut' }}
+                                style={{
+                                  transformOrigin: 'left',
+                                  backgroundColor: i <= pwScore ? pwMeta.color : 'transparent',
+                                  boxShadow: i <= pwScore ? `0 0 8px ${pwMeta.color}60` : 'none',
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-[11px] font-bold" style={{ color: pwMeta.color }}>
+                            {pwMeta.label}
+                          </p>
+                          <div
+                            className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest"
                             style={{
-                              background: isDark
-                                ? 'rgba(255,255,255,0.06)'
-                                : 'rgba(0,0,0,0.06)',
+                              background: `${pwMeta.color}18`,
+                              color: pwMeta.color,
+                              border: `1px solid ${pwMeta.color}30`,
                             }}
                           >
-                            <motion.div
-                              className="h-full rounded-full"
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: i <= pwScore ? 1 : 0 }}
-                              transition={{ duration: 0.3, delay: i * 0.05 }}
-                              style={{
-                                transformOrigin: 'left',
-                                background:
-                                  i <= pwScore ? pwMeta.color : 'transparent',
-                              }}
-                            />
-                          </motion.div>
-                        ))}
-                      </div>
+                            {pwScore}/4
+                          </div>
+                        </div>
 
-                      <p
-                        className="text-[11px] font-bold"
-                        style={{ color: pwMeta.color }}
-                      >
-                        {pwMeta.label}
-                      </p>
+                        {/* requirements grid */}
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {PW_REQS.map((req) => {
+                            const met = req.test(form.newPassword);
+                            return (
+                              <motion.div
+                                key={req.label}
+                                animate={{ opacity: 1 }}
+                                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-all duration-200 ${met
+                                    ? 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400'
+                                    : 'border-white/[0.05] bg-white/[0.02] text-white/25'
+                                  }`}
+                              >
+                                {met
+                                  ? <CheckCircle2 className="h-3 w-3 shrink-0" />
+                                  : <XCircle className="h-3 w-3 shrink-0 opacity-30" />
+                                }
+                                {req.label}
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
-                      {/* requirements */}
-                      <div className="mt-3 grid grid-cols-1 gap-1.5">
-                        {PW_REQS.map((req) => {
-                          const met = req.test(form.newPassword);
-                          return (
-                            <motion.div
-                              key={req.label}
-                              animate={{ opacity: 1 }}
-                              className={`flex items-center gap-2 text-[11px] font-medium transition-colors ${met
-                                ? 'text-emerald-400'
-                                : isDark ? 'text-white/25' : 'text-slate-400'
-                                }`}
-                            >
-                              {met
-                                ? <CheckCircle2 className="h-3 w-3 shrink-0" />
-                                : <XCircle className="h-3 w-3 shrink-0 opacity-40" />
-                              }
-                              {req.label}
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div className="sm:col-span-2 flex items-center gap-3 pt-1">
+                  <GradBtn
+                    type="submit"
+                    disabled={savingPw}
+                    gradient="bg-gradient-to-r from-amber-600 to-orange-600"
+                    shadow="shadow-[0_4px_20px_rgba(245,158,11,0.25)] hover:shadow-[0_4px_30px_rgba(245,158,11,0.4)]"
+                  >
+                    {savingPw ? (
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                        className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                      />
+                    ) : (
+                      <Lock className="h-4 w-4" />
+                    )}
+                    {savingPw ? 'Updating…' : 'Update password'}
+                  </GradBtn>
+                </div>
+              </form>
+
+              {/* session notice */}
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-500/10 bg-amber-500/5 p-3.5">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/50" />
+                <p className="text-[11px] leading-relaxed text-white/25">
+                  Sessions are single-browser JWT today — device management is a visual placeholder for future refresh-token flows.
+                </p>
               </div>
-
-              <div className="sm:col-span-2 flex items-center gap-3">
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={savingPw}
-                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 disabled:opacity-60 ${isDark
-                    ? 'bg-gradient-to-r from-amber-600 to-orange-600 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/35'
-                    : 'bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40'
-                    }`}
-                >
-                  {savingPw ? (
-                    <motion.span
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                      className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
-                    />
-                  ) : (
-                    <Lock className="h-4 w-4" />
-                  )}
-                  {savingPw ? 'Updating…' : 'Update password'}
-                </motion.button>
-              </div>
-            </form>
-
-            {/* session notice */}
-            <div className={`mt-5 flex items-start gap-2.5 rounded-xl p-3 text-[11px] ${isDark ? 'bg-white/[0.03] border border-white/[0.05] text-white/35' : 'bg-slate-50 border border-slate-100 text-slate-400'
-              }`}>
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-60" />
-              <p>
-                Sessions are single-browser JWT today — device management is a visual placeholder for future refresh-token flows.
-              </p>
             </div>
-          </div>
+          </NightCard>
         </motion.div>
 
-        {/* ── ACTIVITY TIMELINE ── */}
+        {/* ══ ACTIVITY TIMELINE ══════════════════════════════════════ */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
-          <div className={`rounded-2xl ${cardBase} p-6`}>
-            <SectionHead
-              icon={Activity}
-              title="Activity Timeline"
-              subtitle="Recent account events and authentication history"
-              isDark={isDark}
-              accent="text-emerald-400"
-            />
+          <NightCard glow glowColor="emerald">
+            <div className="p-6 sm:p-7">
+              <SectionHead
+                icon={Activity}
+                title="Activity Timeline"
+                subtitle="Recent account events and authentication history"
+                accent="text-emerald-400"
+                accentBg="bg-emerald-500/10"
+                accentBorder="border-emerald-500/20"
+              />
 
-            {activity.length > 0 ? (
-              <div className="relative space-y-0">
-                {/* timeline line */}
-                <div className={`absolute left-[19px] top-2 bottom-2 w-px ${isDark ? 'bg-white/[0.06]' : 'bg-slate-200'}`} />
+              {activity.length > 0 ? (
+                <div className="relative">
+                  {/* timeline rail */}
+                  <div className="absolute left-[19px] top-3 bottom-3 w-px bg-gradient-to-b from-white/[0.08] via-white/[0.05] to-transparent" />
 
-                {activity.map((a, idx) => {
-                  const { Icon, color, bg } = activityIcon(a.action);
-                  return (
-                    <motion.div
-                      key={`${a.created_at}-${a.action}`}
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.35, delay: 0.1 + idx * 0.06, ease: 'easeOut' }}
-                      whileHover={{ x: 4 }}
-                      className={`group relative flex items-start gap-4 py-3 pl-1 pr-2 cursor-default rounded-xl transition-colors duration-150 ${isDark ? 'hover:bg-white/[0.02]' : 'hover:bg-slate-50'
-                        }`}
-                    >
-                      {/* icon bubble */}
-                      <div className={`relative z-10 flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border ${bg} ${isDark ? 'border-white/[0.06]' : 'border-black/[0.05]'
-                        }`}>
-                        <Icon className={`h-4 w-4 ${color}`} />
-                      </div>
-                      <div className="flex-1 min-w-0 pt-1">
-                        <p className={`text-sm font-semibold capitalize ${isDark ? 'text-white/80' : 'text-slate-700'}`}>
-                          {a.action.replace(/_/g, ' ')}
-                        </p>
-                        {a.ip && (
-                          <p className={`mt-0.5 flex items-center gap-1 text-[11px] ${isDark ? 'text-white/25' : 'text-slate-400'}`}>
-                            <Globe className="h-3 w-3" />
-                            {a.ip}
-                          </p>
-                        )}
-                      </div>
-                      <div className="shrink-0 pt-1 text-right">
-                        <p className={`text-[11px] font-semibold ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
-                          {relativeTime(a.created_at)}
-                        </p>
-                        <p className={`mt-0.5 text-[10px] ${isDark ? 'text-white/15' : 'text-slate-300'}`}>
-                          {new Date(a.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className={`flex flex-col items-center gap-3 py-10 text-center ${isDark ? 'text-white/25' : 'text-slate-400'}`}
-              >
-                <Activity className="h-8 w-8 opacity-40" />
-                <p className="text-sm font-medium">No recent activity logged</p>
-                <p className="text-xs opacity-60">Events will appear here as you use the platform.</p>
-              </motion.div>
-            )}
-          </div>
+                  <div className="space-y-1">
+                    {activity.map((a, idx) => {
+                      const { Icon, color, bg, glow, border } = activityIcon(a.action);
+                      return (
+                        <motion.div
+                          key={`${a.created_at}-${a.action}`}
+                          initial={{ opacity: 0, x: -16 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.08 + idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                          whileHover={{ x: 5 }}
+                          className="group relative flex items-start gap-4 rounded-xl border border-transparent px-2 py-3 transition-all duration-200 hover:border-white/[0.05] hover:bg-white/[0.02] cursor-default"
+                        >
+                          {/* icon bubble */}
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className={`relative z-10 flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border ${bg} ${border} shadow-lg ${glow}`}
+                          >
+                            <Icon className={`h-3.5 w-3.5 ${color}`} />
+                            {/* pulse on hover */}
+                            <motion.div
+                              className={`absolute inset-0 rounded-full ${bg} opacity-0 group-hover:opacity-100`}
+                              animate={{ scale: [1, 1.5, 1], opacity: [0, 0.3, 0] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            />
+                          </motion.div>
+
+                          {/* content */}
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <p className="text-sm font-semibold capitalize text-white/75 group-hover:text-white/90 transition-colors">
+                              {a.action.replace(/_/g, ' ')}
+                            </p>
+                            {a.ip && (
+                              <p className="mt-0.5 flex items-center gap-1 text-[11px] text-white/20">
+                                <Globe className="h-3 w-3" />
+                                {a.ip}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* timestamps */}
+                          <div className="shrink-0 pt-0.5 text-right">
+                            <p className="text-[11px] font-bold text-white/35">
+                              {relativeTime(a.created_at)}
+                            </p>
+                            <p className="mt-0.5 text-[10px] text-white/15">
+                              {new Date(a.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center gap-3 py-12 text-center"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.03]">
+                    <Activity className="h-6 w-6 text-white/15" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white/30">No recent activity logged</p>
+                    <p className="mt-0.5 text-xs text-white/15">Events will appear here as you use the platform.</p>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </NightCard>
         </motion.div>
 
       </div>
