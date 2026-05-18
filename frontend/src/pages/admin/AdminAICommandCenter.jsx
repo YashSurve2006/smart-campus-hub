@@ -154,9 +154,9 @@ function DeptRankingsTable({ rankings, loading }) {
             >
               <td className="px-4 py-3">
                 <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black ${i === 0 ? 'bg-amber-500/20 text-amber-300' :
-                    i === 1 ? 'bg-slate-500/20 text-slate-300' :
-                      i === 2 ? 'bg-orange-500/20 text-orange-300' :
-                        'bg-slate-800 text-slate-500'
+                  i === 1 ? 'bg-slate-500/20 text-slate-300' :
+                    i === 2 ? 'bg-orange-500/20 text-orange-300' :
+                      'bg-slate-800 text-slate-500'
                   }`}>
                   #{dept.rank}
                 </span>
@@ -213,9 +213,9 @@ function ToppersTable({ toppers }) {
           className="flex items-center gap-3 rounded-xl border border-white/8 bg-slate-950/40 px-4 py-3"
         >
           <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black ${i === 0 ? 'bg-amber-500/20 text-amber-300' :
-              i === 1 ? 'bg-slate-400/10 text-slate-300' :
-                i === 2 ? 'bg-orange-500/15 text-orange-300' :
-                  'bg-slate-800 text-slate-500'
+            i === 1 ? 'bg-slate-400/10 text-slate-300' :
+              i === 2 ? 'bg-orange-500/15 text-orange-300' :
+                'bg-slate-800 text-slate-500'
             }`}>
             #{i + 1}
           </span>
@@ -250,6 +250,10 @@ export default function AdminAICommandCenter() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [riskDeptFilter, setRiskDeptFilter] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+
+  const reportSemester = overview?.semesterTrend?.length
+    ? Number(overview.semesterTrend[overview.semesterTrend.length - 1].semester)
+    : 1;
 
   const fetchCore = useCallback(async () => {
     setLoading(true);
@@ -398,8 +402,8 @@ export default function AdminAICommandCenter() {
               key={id}
               onClick={() => setActiveTab(id)}
               className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${activeTab === id
-                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                  : 'text-slate-500 hover:text-slate-300'
+                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                : 'text-slate-500 hover:text-slate-300'
                 }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -568,7 +572,7 @@ export default function AdminAICommandCenter() {
         open={reportModalOpen}
         onClose={() => setReportModalOpen(false)}
         departmentId={null}
-        semester={1}
+        semester={reportSemester}
         departmentName="All Departments"
       />
     </div>

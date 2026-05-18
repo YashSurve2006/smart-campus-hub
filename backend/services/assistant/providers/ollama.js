@@ -1,6 +1,10 @@
 import { env } from '../../../utils/env.js';
 
 export async function ollamaChat({ system, userMessage, context }) {
+  if (!env.assistant.ollamaBase || !env.assistant.ollamaModel) {
+    throw new Error('Ollama configuration is incomplete. Set OLLAMA_BASE_URL and OLLAMA_MODEL.');
+  }
+
   const base = env.assistant.ollamaBase.replace(/\/$/, '');
   const ctx = JSON.stringify(context).slice(0, 12000);
   const res = await fetch(`${base}/api/chat`, {

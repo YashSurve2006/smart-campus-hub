@@ -6,7 +6,7 @@
  * Pure statistical computation — no external API dependencies.
  */
 
-import { query, queryOne } from '../config/db.js';
+import { query } from '../config/db.js';
 
 /* ------------------------------------------------------------------ */
 /* UNIVERSITY-WIDE OVERVIEW                                            */
@@ -109,8 +109,8 @@ export async function getDepartmentRankings() {
  * Filterable by department + semester.
  */
 export async function getSubjectHeatmap({ departmentId = null, semester = null } = {}) {
-  return query(
-    `
+  const params = [];
+  let sql = `
     SELECT
       sub.id,
       sub.code,
@@ -129,14 +129,25 @@ export async function getSubjectHeatmap({ departmentId = null, semester = null }
     FROM subjects sub
     JOIN departments d ON d.id = sub.department_id
     LEFT JOIN results r ON r.subject_id = sub.id
-    WHERE (? IS NULL OR sub.department_id = ?)
-      AND (? IS NULL OR sub.semester = ?)
+    WHERE 1 = 1`;
+
+  if (departmentId) {
+    sql += '\n      AND sub.department_id = ?';
+    params.push(departmentId);
+  }
+
+  if (semester) {
+    sql += '\n      AND sub.semester = ?';
+    params.push(semester);
+  }
+
+  sql += `
     GROUP BY sub.id, sub.code, sub.name, sub.credits, sub.semester, d.name
     HAVING total_entries > 0
     ORDER BY avg_percentage ASC
-    `,
-    [departmentId ?? null, departmentId ?? null, semester ?? null, semester ?? null]
-  ).then((rows) =>
+    `;
+
+  return query(sql, params).then((rows) =>
     rows.map((r) => ({
       ...r,
       heatScore: computeHeatScore(Number(r.avg_percentage), Number(r.pass_rate)),
@@ -185,8 +196,8 @@ export async function getDepartmentSemesterTrend(departmentId) {
  *   - Percentage < 40% in any subject
  */
 export async function getAtRiskStudents({ departmentId = null, semester = null, limit = 50 } = {}) {
-  const rows = await query(
-    `
+  const params = [];
+  let sql = `
     SELECT
       s.id                                                                   AS student_id,
       s.student_code,
@@ -207,17 +218,31 @@ export async function getAtRiskStudents({ departmentId = null, semester = null, 
     LEFT JOIN results r ON r.student_id = s.id
     LEFT JOIN cgpa_records cr ON cr.student_id = s.id
       AND cr.semester = (SELECT MAX(cr2.semester) FROM cgpa_records cr2 WHERE cr2.student_id = s.id)
-    WHERE (? IS NULL OR s.department_id = ?)
+    WHERE 1 = 1`;
+
+  if (departmentId) {
+    sql += '\n      AND s.department_id = ?';
+    params.push(departmentId);
+  }
+
+  if (semester) {
+    sql += '\n      AND s.semester = ?';
+    params.push(semester);
+  }
+
+  sql += `
     GROUP BY s.id, s.student_code, u.first_name, u.last_name, u.email,
              d.name, s.semester, cr.cgpa, cr.sgpa
-    HAVING (cgpa < 5.0 AND cgpa > 0)
-        OR fail_count >= 2
-        OR (avg_percentage < 45 AND avg_percentage > 0)
-    ORDER BY cgpa ASC, fail_count DESC
-    LIMIT ?
-    `,
-    [departmentId ?? null, departmentId ?? null, limit]
-  );
+    HAVING (COALESCE(cr.cgpa, 0) < 5.0 AND COALESCE(cr.cgpa, 0) > 0)
+        OR SUM(CASE WHEN r.status='fail' THEN 1 ELSE 0 END) >= 2
+        OR (ROUND(AVG(r.percentage), 2) < 45 AND ROUND(AVG(r.percentage), 2) > 0)
+    ORDER BY COALESCE(cr.cgpa, 0) ASC, fail_count DESC
+    `;
+
+  const safeLimit = Number.isInteger(limit) ? Math.max(1, Math.min(limit, 100)) : 50;
+  sql += ` LIMIT ${safeLimit}`;
+
+  const rows = await query(sql, params);
 
   return rows.map((r) => ({
     ...r,
@@ -231,8 +256,8 @@ export async function getAtRiskStudents({ departmentId = null, semester = null, 
 /* ------------------------------------------------------------------ */
 
 export async function getToppers({ departmentId = null, semester = null, limit = 10 } = {}) {
-  return query(
-    `
+  const params = [];
+  let sql = `
     SELECT
       s.id                                                                   AS student_id,
       s.student_code,
@@ -241,25 +266,39 @@ export async function getToppers({ departmentId = null, semester = null, limit =
       d.name                                                                 AS department_name,
       COALESCE(cr.cgpa, 0)                                                   AS cgpa,
       COALESCE(cr.sgpa, 0)                                                   AS sgpa,
-      ROUND(AVG(r.percentage), 2)                                            AS avg_percentage,
-      DENSE_RANK() OVER (
-        PARTITION BY s.department_id
-        ORDER BY AVG(r.percentage) DESC
-      )                                                                      AS dept_rank
+      ROUND(AVG(r.percentage), 2)                                            AS avg_percentage
     FROM results r
     JOIN students s ON s.id = r.student_id
     JOIN users u ON u.id = s.user_id
     JOIN departments d ON d.id = s.department_id
     LEFT JOIN cgpa_records cr ON cr.student_id = s.id
-      AND cr.semester = COALESCE(?, (SELECT MAX(cr2.semester) FROM cgpa_records cr2 WHERE cr2.student_id = s.id))
-    WHERE (? IS NULL OR s.department_id = ?)
-      AND (? IS NULL OR r.semester = ?)
+      AND cr.semester = (SELECT MAX(cr2.semester) FROM cgpa_records cr2 WHERE cr2.student_id = s.id)
+    WHERE 1 = 1`;
+
+  if (departmentId) {
+    sql += '\n      AND s.department_id = ?';
+    params.push(departmentId);
+  }
+
+  if (semester) {
+    sql += '\n      AND r.semester = ?';
+    params.push(semester);
+  }
+
+  sql += `
     GROUP BY s.id, s.student_code, u.first_name, u.last_name, d.name, cr.cgpa, cr.sgpa
     ORDER BY avg_percentage DESC
-    LIMIT ?
-    `,
-    [semester ?? null, departmentId ?? null, departmentId ?? null, semester ?? null, semester ?? null, limit]
-  );
+    `;
+
+  const safeLimit = Number.isInteger(limit) ? Math.max(1, Math.min(limit, 50)) : 10;
+  sql += ` LIMIT ${safeLimit}`;
+
+  const rows = await query(sql, params);
+
+  return rows.map((row) => ({
+    ...row,
+    dept_rank: null,
+  }));
 }
 
 /* ------------------------------------------------------------------ */

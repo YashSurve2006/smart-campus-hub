@@ -157,32 +157,51 @@ export function AIAssistant({ dark }) {
                     <div
                       key={`${msg.at}-${i}`}
                       className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${msg.role === 'user'
-                          ? dark
-                            ? 'ml-6 bg-hub-blue/20'
-                            : 'ml-6 bg-hub-blue/10'
-                          : dark
-                            ? 'mr-2 bg-white/5'
-                            : 'mr-2 bg-slate-100/80'
+                        ? dark
+                          ? 'ml-6 bg-hub-blue/20'
+                          : 'ml-6 bg-hub-blue/10'
+                        : dark
+                          ? 'mr-2 bg-white/5'
+                          : 'mr-2 bg-slate-100/80'
                         }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.text}</p>
                       {msg.cards?.length > 0 && (
                         <div className="mt-2 grid gap-2">
-                          {msg.cards.map((c) => (
+                          {msg.cards.map((c, cardIndex) => (
                             <div
-                              key={c.title}
+                              key={`${c.title || c.type || 'card'}-${cardIndex}`}
                               className={`rounded-xl border px-2 py-2 text-xs ${dark ? 'border-white/10 bg-slate-950/60' : 'border-slate-200 bg-white'
                                 }`}
                             >
-                              <p className="font-semibold text-hub-teal">{c.title}</p>
-                              <ul className="mt-1 space-y-0.5 text-[11px] opacity-90">
-                                {c.items?.map((it, j) => (
-                                  <li key={j}>
-                                    <span className="font-medium">{it.line}</span>
-                                    {it.sub && <span className="text-slate-500"> · {it.sub}</span>}
-                                  </li>
-                                ))}
-                              </ul>
+                              <p className="font-semibold text-hub-teal">
+                                {c.title || String(c.type || 'Info').replace(/[-_]/g, ' ').toUpperCase()}
+                              </p>
+                              {c.items?.length > 0 ? (
+                                <ul className="mt-1 space-y-0.5 text-[11px] opacity-90">
+                                  {c.items.map((it, j) => {
+                                    const line = it?.line ?? it?.title ?? it?.name ?? JSON.stringify(it);
+                                    const sub = it?.sub ?? it?.subtitle ?? it?.detail ?? it?.description;
+                                    return (
+                                      <li key={j}>
+                                        <span className="font-medium">{line}</span>
+                                        {sub && <span className="text-slate-500"> · {sub}</span>}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              ) : c.summary ? (
+                                <ul className="mt-1 space-y-0.5 text-[11px] opacity-90">
+                                  {Object.entries(c.summary).map(([key, value]) => (
+                                    <li key={key}>
+                                      <span className="font-medium">{`${key.replace(/([A-Z])/g, ' $1')}:`}</span>{' '}
+                                      <span className="text-slate-500">{String(value)}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="mt-1 text-[11px] text-slate-500">No additional details available.</p>
+                              )}
                             </div>
                           ))}
                         </div>

@@ -31,6 +31,7 @@ export const featured = asyncHandler(async (req, res) => {
 export const getOne = asyncHandler(async (req, res) => {
   const event = await eventService.getEvent(req.params.id);
   if (!event) return res.status(404).json({ success: false, message: 'Not found' });
+  eventService.assertEventReadable(event, req.user.role);
   const registered = await eventService.userRegistered(event.id, req.user.id);
   let ticket = null;
   if (registered) {

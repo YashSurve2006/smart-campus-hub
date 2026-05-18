@@ -8,10 +8,13 @@ const SYSTEM =
   'You are the Smart Campus Hub assistant. Use only the provided JSON context about this user campus data. Be concise, friendly, and actionable. If data is missing, say so.';
 
 export function getAssistantCapabilities() {
+  const openaiEnabled = Boolean(env.assistant.openaiKey && env.assistant.openaiBase);
+  const ollamaEnabled = Boolean(env.assistant.ollamaBase && env.assistant.ollamaModel);
+
   return {
     providers: {
-      openai: Boolean(env.assistant.openaiKey),
-      ollama: Boolean(env.assistant.ollamaBase),
+      openai: openaiEnabled,
+      ollama: ollamaEnabled,
       local: false,
       contextFallback: true,
     },
@@ -25,8 +28,10 @@ export function getAssistantCapabilities() {
 
 export async function answerAssistant({ message, userId, role }) {
   const context = await contextBuilder.buildCampusDataContext(userId, role);
+  const openaiEnabled = Boolean(env.assistant.openaiKey && env.assistant.openaiBase);
+  const ollamaEnabled = Boolean(env.assistant.ollamaBase && env.assistant.ollamaModel);
 
-  if (env.assistant.openaiKey) {
+  if (openaiEnabled) {
     try {
       const reply = await openaiChat({
         system: SYSTEM,

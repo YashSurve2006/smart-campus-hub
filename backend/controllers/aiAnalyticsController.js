@@ -163,12 +163,12 @@ export const facultyModeration = asyncHandler(async (req, res) => {
   const topFailSubject = candidates.find((c) => c.needsModeration);
   const classFeedback = topFailSubject
     ? generateClassFeedback({
-        avgPct: topFailSubject.avgPercentage,
-        passRate: 100 - topFailSubject.failRate,
-        topperPct: topFailSubject.maxMarks / topFailSubject.totalMarks * 100,
-        weakestPct: topFailSubject.minMarks / topFailSubject.totalMarks * 100,
-        totalStudents: topFailSubject.totalEntries,
-      })
+      avgPct: topFailSubject.avgPercentage,
+      passRate: 100 - topFailSubject.failRate,
+      topperPct: topFailSubject.maxMarks / topFailSubject.totalMarks * 100,
+      weakestPct: topFailSubject.minMarks / topFailSubject.totalMarks * 100,
+      totalStudents: topFailSubject.totalEntries,
+    })
     : null;
 
   res.json({
@@ -288,6 +288,12 @@ export const riskStudents = asyncHandler(async (req, res) => {
   const semester = req.query.semester ? Number(req.query.semester) : null;
   const limit = req.query.limit ? Math.min(100, Number(req.query.limit)) : 50;
 
+  console.debug('[aiAnalytics.riskStudents] query', {
+    departmentId,
+    semester,
+    limit,
+  });
+
   const students = await getAtRiskStudents({ departmentId, semester, limit });
 
   res.json({ success: true, riskStudents: students, total: students.length });
@@ -336,21 +342,34 @@ export const cgpaSpikes = asyncHandler(async (req, res) => {
  * Body: { departmentId, semester, type: 'moderation' | 'summary' }
  */
 export const generateReport = asyncHandler(async (req, res) => {
-  const { departmentId, semester, type = 'moderation' } = req.body;
+  const departmentId = req.body.departmentId ? Number(req.body.departmentId) : null;
+  const semester = Number(req.body.semester);
+  const type = req.body.type || 'moderation';
 
-  if (!departmentId || !semester) {
-    throw new AppError('departmentId and semester are required', 400);
+  console.debug('[aiAnalytics.generateReport] request', {
+    departmentId,
+    semester,
+    type,
+    body: req.body,
+  });
+
+  if (!semester) {
+    throw new AppError('semester is required', 400);
+  }
+
+  if (type === 'moderation' && !departmentId) {
+    throw new AppError('departmentId is required for moderation reports', 400);
   }
 
   let reportData;
   if (type === 'moderation') {
-    reportData = await generateModerationReport(Number(departmentId), Number(semester));
+    reportData = await generateModerationReport(departmentId, semester);
   } else {
-    // Summary report
+    // Summary report across a department or all departments when departmentId is omitted
     const [heatmap, rankings, riskSt] = await Promise.all([
-      getSubjectHeatmap({ departmentId: Number(departmentId), semester: Number(semester) }),
+      getSubjectHeatmap({ departmentId, semester }),
       getDepartmentRankings(),
-      getAtRiskStudents({ departmentId: Number(departmentId), semester: Number(semester) }),
+      getAtRiskStudents({ departmentId, semester }),
     ]);
     reportData = { heatmap, rankings, riskStudents: riskSt };
   }

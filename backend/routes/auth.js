@@ -13,7 +13,7 @@ router.post(
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     body('firstName').trim().notEmpty().isLength({ max: 80 }),
     body('lastName').trim().notEmpty().isLength({ max: 80 }),
-    body('role').isIn(['student', 'faculty', 'admin']),
+    body('role').isIn(['student', 'faculty']),
   ],
   validate,
   authController.register

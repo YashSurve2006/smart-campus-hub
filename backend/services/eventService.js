@@ -8,7 +8,7 @@ function eventVisibilitySql(role) {
   return '1=1';
 }
 
-function assertEventReadable(event, role) {
+export function assertEventReadable(event, role) {
   if (!event) throw new AppError('Event not found', 404);
   const tr = event.target_role;
   if (role === 'student' && !['all', 'student'].includes(tr)) {

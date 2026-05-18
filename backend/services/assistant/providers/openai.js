@@ -1,6 +1,10 @@
 import { env } from '../../../utils/env.js';
 
 export async function openaiChat({ system, userMessage, context }) {
+  if (!env.assistant.openaiKey || !env.assistant.openaiBase) {
+    throw new Error('OpenAI configuration is incomplete. Set OPENAI_API_KEY and OPENAI_API_BASE.');
+  }
+
   const base = env.assistant.openaiBase.replace(/\/$/, '');
   const url = `${base}/chat/completions`;
   const ctx = JSON.stringify(context).slice(0, 12000);

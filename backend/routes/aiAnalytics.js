@@ -142,8 +142,8 @@ router.post(
   authenticate,
   requireRole('faculty', 'admin'),
   [
-    body('departmentId').isInt({ min: 1 }),
-    body('semester').isInt({ min: 1, max: 12 }),
+    body('departmentId').optional({ nullable: true }).isInt({ min: 1 }).withMessage('Valid departmentId required'),
+    body('semester').isInt({ min: 1, max: 12 }).withMessage('Valid semester (1–12) required'),
     body('type').optional().isIn(['moderation', 'summary']),
   ],
   validate,

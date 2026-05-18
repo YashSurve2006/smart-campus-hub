@@ -139,7 +139,7 @@ export async function updateStudentUser(userId, data) {
         last_name = COALESCE(?, last_name),
         phone = ?
        WHERE id = ?`,
-      [data.firstName, data.lastName, data.phone ?? null, userId]
+      [data.firstName ?? null, data.lastName ?? null, data.phone ?? null, userId]
     );
   }
   if (
@@ -153,7 +153,7 @@ export async function updateStudentUser(userId, data) {
         department_id = COALESCE(?, department_id),
         student_code = COALESCE(?, student_code)
        WHERE user_id = ?`,
-      [data.semester, data.departmentId, data.studentCode, userId]
+      [data.semester ?? null, data.departmentId ?? null, data.studentCode ?? null, userId]
     );
   }
 }
@@ -172,7 +172,7 @@ export async function updateFacultyUser(userId, data) {
         last_name = COALESCE(?, last_name),
         phone = ?
        WHERE id = ?`,
-      [data.firstName, data.lastName, data.phone ?? null, userId]
+      [data.firstName ?? null, data.lastName ?? null, data.phone ?? null, userId]
     );
   }
   if (
@@ -189,10 +189,10 @@ export async function updateFacultyUser(userId, data) {
         specialization = COALESCE(?, specialization)
        WHERE user_id = ?`,
       [
-        data.designation,
-        data.departmentId,
-        data.employeeCode,
-        data.specialization === undefined ? null : data.specialization,
+        data.designation ?? null,
+        data.departmentId ?? null,
+        data.employeeCode ?? null,
+        data.specialization ?? null,
         userId,
       ]
     );
