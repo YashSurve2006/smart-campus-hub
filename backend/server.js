@@ -32,6 +32,7 @@ import assistantRoutes from './routes/assistant.js';
 import fileRegistryRoutes from './routes/fileRegistry.js';
 import resultRoutes from './routes/results.js';
 import aiAnalyticsRoutes from './routes/aiAnalytics.js';
+import assignmentRoutes from './routes/assignments.js';
 
 validateEnv();
 
@@ -137,6 +138,7 @@ app.use('/api/assistant', assistantRoutes);
 app.use('/api/file-registry', fileRegistryRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/ai-analytics', aiAnalyticsRoutes);
+app.use('/api/assignments', assignmentRoutes);
 
 app.use(errorHandler);
 

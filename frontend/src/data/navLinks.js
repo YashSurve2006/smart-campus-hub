@@ -16,11 +16,13 @@ import {
   Shield,
   GraduationCap,
   Brain,
+  FileText,
 } from 'lucide-react';
 
 export const studentNav = [
   { to: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/student/notices', label: 'Notices', icon: Newspaper },
+  { to: '/student/assignments', label: 'Assignments', icon: FileText },
   { to: '/student/attendance', label: 'Attendance', icon: ClipboardCheck },
   { to: '/student/timetable', label: 'Timetable', icon: CalendarDays },
   { to: '/student/events', label: 'Events', icon: Sparkles },
@@ -35,6 +37,7 @@ export const studentNav = [
 export const facultyNav = [
   { to: '/faculty/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/faculty/notices', label: 'Upload notices', icon: Megaphone },
+  { to: '/faculty/assignments', label: 'Assignments', icon: FileText },
   { to: '/faculty/events', label: 'Events', icon: Sparkles },
   { to: '/faculty/notifications', label: 'Notifications', icon: Bell },
   { to: '/faculty/attendance', label: 'Attendance', icon: ClipboardCheck },
@@ -50,6 +53,7 @@ export const adminNav = [
   { to: '/admin/students', label: 'Students', icon: GraduationCap },
   { to: '/admin/faculty', label: 'Faculty', icon: UserCog },
   { to: '/admin/notices', label: 'Notices', icon: Megaphone },
+  { to: '/admin/assignments', label: 'Assignments', icon: FileText },
   { to: '/admin/events', label: 'Events', icon: Sparkles },
   { to: '/admin/notifications', label: 'Notifications', icon: Bell },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },

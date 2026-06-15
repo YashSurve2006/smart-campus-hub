@@ -7,4 +7,7 @@ export const SOCKET_EVENTS = {
   usersChanged: 'sch:users:changed',
   attendanceUpdated: 'sch:attendance:updated',
   userCampusEvent: 'campus:event',
+  assignmentPublished: 'sch:assignment:published',
+  submissionCreated: 'sch:submission:created',
+  submissionGraded: 'sch:submission:graded',
 };

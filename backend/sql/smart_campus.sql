@@ -240,10 +240,13 @@ CREATE TABLE IF NOT EXISTS event_registrations (
 CREATE TABLE IF NOT EXISTS uploaded_files (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
-  scope ENUM('notice_attachment', 'event_banner', 'avatar', 'other') NOT NULL DEFAULT 'other',
+  scope ENUM('notice_attachment', 'event_banner', 'avatar', 'other', 'assignment_attachment', 'submission_attachment') NOT NULL DEFAULT 'other',
   entity_type VARCHAR(64) NULL,
   entity_id VARCHAR(64) NULL,
   public_path VARCHAR(512) NOT NULL,
+  cloud_url VARCHAR(512) NULL,
+  cloud_public_id VARCHAR(255) NULL,
+  cloud_folder VARCHAR(128) NULL,
   stored_name VARCHAR(255) NOT NULL,
   original_name VARCHAR(255) NOT NULL,
   mime_type VARCHAR(128) NOT NULL,
@@ -251,7 +254,8 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_uf_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_uf_user_created (user_id, created_at),
-  INDEX idx_uf_scope (scope)
+  INDEX idx_uf_scope (scope),
+  INDEX idx_uploaded_cloud (cloud_public_id)
 ) ENGINE=InnoDB;
 
 -- Security / audit
@@ -348,3 +352,104 @@ CREATE TABLE IF NOT EXISTS cgpa_records (
   CONSTRAINT fk_cgpa_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   INDEX idx_cgpa_sem (semester)
 ) ENGINE=InnoDB;
+
+-- Assignment management module
+CREATE TABLE IF NOT EXISTS assignments (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  subject_id INT UNSIGNED NOT NULL,
+  faculty_id INT UNSIGNED NOT NULL,
+  department_id INT UNSIGNED NOT NULL,
+  semester TINYINT UNSIGNED NOT NULL,
+  due_date DATETIME NOT NULL,
+  max_marks SMALLINT UNSIGNED NOT NULL DEFAULT 100,
+  allow_late_submissions TINYINT(1) NOT NULL DEFAULT 1,
+  late_penalty_percent DECIMAL(5,2) NULL DEFAULT NULL,
+  status ENUM('draft', 'published', 'active', 'expired', 'closed') NOT NULL DEFAULT 'draft',
+  published_at DATETIME NULL,
+  closed_at DATETIME NULL,
+  created_by INT UNSIGNED NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_assignments_subject FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignments_faculty FOREIGN KEY (faculty_id) REFERENCES faculty(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignments_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignments_creator FOREIGN KEY (created_by) REFERENCES users(id),
+
+  INDEX idx_assignments_dept_sem (department_id, semester),
+  INDEX idx_assignments_faculty (faculty_id),
+  INDEX idx_assignments_status (status),
+  INDEX idx_assignments_due (due_date),
+  INDEX idx_assignments_subject (subject_id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assignment_attachments (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  assignment_id INT UNSIGNED NOT NULL,
+  uploaded_file_id INT UNSIGNED NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_assignment_att_assignment FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignment_att_upload FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE,
+
+  INDEX idx_assignment_att_id (assignment_id),
+  UNIQUE KEY uq_assignment_att_unique (assignment_id, uploaded_file_id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assignment_submissions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  assignment_id INT UNSIGNED NOT NULL,
+  student_id INT UNSIGNED NOT NULL,
+  status ENUM('not_submitted', 'submitted', 'late_submitted', 'under_review', 'graded') NOT NULL DEFAULT 'not_submitted',
+  marks_obtained DECIMAL(6,2) NULL,
+  remarks TEXT NULL,
+  graded_by INT UNSIGNED NULL,
+  graded_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_submission_assignment FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_submission_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_submission_grader FOREIGN KEY (graded_by) REFERENCES users(id),
+
+  UNIQUE KEY uq_submission_unique (assignment_id, student_id),
+  INDEX idx_submission_assignment (assignment_id),
+  INDEX idx_submission_student (student_id),
+  INDEX idx_submission_status (status),
+  INDEX idx_submission_graded (graded_at)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS submission_attachments (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  submission_id BIGINT UNSIGNED NOT NULL,
+  uploaded_file_id INT UNSIGNED NOT NULL,
+  submission_version INT UNSIGNED NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_submission_att_submission FOREIGN KEY (submission_id) REFERENCES assignment_submissions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_submission_att_upload FOREIGN KEY (uploaded_file_id) REFERENCES uploaded_files(id) ON DELETE CASCADE,
+
+  INDEX idx_submission_att_id (submission_id),
+  INDEX idx_submission_att_version (submission_id, submission_version)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assignment_analytics_cache (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  department_id INT UNSIGNED NOT NULL,
+  semester TINYINT UNSIGNED NOT NULL,
+  assignment_id INT UNSIGNED NULL,
+  total_assignments INT UNSIGNED NOT NULL DEFAULT 0,
+  total_submissions INT UNSIGNED NOT NULL DEFAULT 0,
+  submission_rate DECIMAL(5,2) NULL,
+  late_submission_rate DECIMAL(5,2) NULL,
+  average_marks DECIMAL(6,2) NULL,
+  cached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_assignment_analytics_dept FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE,
+  CONSTRAINT fk_assignment_analytics_assignment FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
+
+  UNIQUE KEY uq_assignment_analytics (department_id, semester, assignment_id),
+  INDEX idx_analytics_cached (cached_at)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

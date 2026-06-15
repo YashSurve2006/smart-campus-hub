@@ -10,21 +10,27 @@ export async function recordFile({
   originalName,
   mimeType,
   sizeBytes,
+  cloudUrl,
+  cloudPublicId,
+  cloudFolder,
 }) {
   const [r] = await pool.execute(
     `INSERT INTO uploaded_files
-      (user_id, scope, entity_type, entity_id, public_path, stored_name, original_name, mime_type, size_bytes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (user_id, scope, entity_type, entity_id, public_path, stored_name, original_name, mime_type, size_bytes, cloud_url, cloud_public_id, cloud_folder)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       userId,
       scope,
       entityType ?? null,
       entityId ?? null,
-      publicPath,
+      publicPath ?? '',
       storedName,
       originalName,
       mimeType,
       sizeBytes ?? 0,
+      cloudUrl ?? null,
+      cloudPublicId ?? null,
+      cloudFolder ?? null,
     ]
   );
   return r.insertId;

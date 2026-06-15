@@ -1,5 +1,13 @@
 import { pool, query, queryOne } from '../config/db.js';
 
+export async function sendNotification({ userId, title, message, type, targetRole }) {
+  if (userId) {
+    await createUserNotification(userId, { title, message, type });
+  } else {
+    await createNotificationsForRole({ title, message, type, targetRole: targetRole || 'student' });
+  }
+}
+
 export async function createNotificationsForRole({ title, message, type, targetRole }) {
   let roleFilter = '';
   if (targetRole === 'student') roleFilter = `role = 'student'`;

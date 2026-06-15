@@ -80,6 +80,10 @@ const StudentNoticesPage = lazy(() =>
   import('../pages/student/StudentNoticesPage')
 );
 
+const StudentAssignmentsPage = lazy(() =>
+  import('../pages/student/AssignmentsPage')
+);
+
 /* ─────────────────────────────────────────────
    FACULTY
 ───────────────────────────────────────────── */
@@ -106,6 +110,10 @@ const FacultyResultsPage = lazy(() =>
 
 const FacultyAIAssistant = lazy(() =>
   import('../pages/faculty/FacultyAIAssistant')
+);
+
+const FacultyAssignmentsPage = lazy(() =>
+  import('../pages/faculty/FacultyAssignmentsPage')
 );
 
 /* ─────────────────────────────────────────────
@@ -138,6 +146,10 @@ const AdminAuditPage = lazy(() =>
 
 const AdminAICommandCenter = lazy(() =>
   import('../pages/admin/AdminAICommandCenter')
+);
+
+const AdminAssignmentsPage = lazy(() =>
+  import('../pages/admin/AdminAssignmentsPage')
 );
 
 /* ─────────────────────────────────────────────
@@ -327,6 +339,13 @@ export function AppRoutes() {
               />
 
               <Route
+                path="assignments"
+                element={Wrap(
+                  <StudentAssignmentsPage />
+                )}
+              />
+
+              <Route
                 path="files"
                 element={Wrap(
                   <FileManagerPage />
@@ -400,6 +419,13 @@ export function AppRoutes() {
                 path="notices"
                 element={Wrap(
                   <FacultyNotices />
+                )}
+              />
+
+              <Route
+                path="assignments"
+                element={Wrap(
+                  <FacultyAssignmentsPage />
                 )}
               />
 
@@ -512,6 +538,13 @@ export function AppRoutes() {
                 path="notices"
                 element={Wrap(
                   <ManageNotices />
+                )}
+              />
+
+              <Route
+                path="assignments"
+                element={Wrap(
+                  <AdminAssignmentsPage />
                 )}
               />
 

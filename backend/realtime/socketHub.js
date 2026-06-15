@@ -2,6 +2,7 @@
  * Centralized Socket.IO broadcast helpers for dashboard and domain events.
  */
 import { SOCKET_EVENTS } from './events.js';
+import { query } from '../config/db.js';
 
 export function broadcastDashboardRefresh(io, payload = {}) {
   io?.emit(SOCKET_EVENTS.dashboardRefresh, { at: Date.now(), ...payload });
@@ -30,4 +31,30 @@ export function broadcastAttendanceUpdated(io, payload) {
 export function notifyUser(io, userId, eventName, payload) {
   if (!io || !userId) return;
   io.to(`user:${userId}`).emit(eventName, { at: Date.now(), ...payload });
+}
+
+export async function broadcastAssignmentPublished(io, assignment) {
+  io?.emit(SOCKET_EVENTS.assignmentPublished, { assignment, at: Date.now() });
+  broadcastDashboardRefresh(io, { reason: 'assignment' });
+
+  // Notify eligible students
+  const students = await query(
+    `SELECT user_id 
+     FROM students 
+     WHERE department_id = ? AND semester = ?`,
+    [assignment.department_id, assignment.semester]
+  );
+  for (const s of students) {
+    notifyUser(io, s.user_id, SOCKET_EVENTS.assignmentPublished, { assignment });
+  }
+}
+
+export function broadcastSubmissionCreated(io, submission, facultyUserId) {
+  notifyUser(io, facultyUserId, SOCKET_EVENTS.submissionCreated, { submission });
+  broadcastDashboardRefresh(io, { reason: 'submission' });
+}
+
+export function broadcastSubmissionGraded(io, submission, studentUserId) {
+  notifyUser(io, studentUserId, SOCKET_EVENTS.submissionGraded, { submission });
+  broadcastDashboardRefresh(io, { reason: 'submission' });
 }

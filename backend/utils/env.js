@@ -28,6 +28,11 @@ export const env = {
     ollamaBase: envStr('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
     ollamaModel: envStr('OLLAMA_MODEL', 'llama3.2'),
   },
+  cloudinary: {
+    cloudName: envStr('CLOUDINARY_CLOUD_NAME', ''),
+    apiKey: envStr('CLOUDINARY_API_KEY', ''),
+    apiSecret: envStr('CLOUDINARY_API_SECRET', ''),
+  },
 };
 
 export function validateEnv() {
