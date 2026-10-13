@@ -1,11 +1,11 @@
 // PHASE 3: Students — 94 new students + Yash Surve
 // Existing: student_id 1 = CSE sem5, student_id 2 = CSE sem3
 // Yash: user_id=17, student_id=3, CSE sem7
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mysql = require('mysql2/promise');
-const cfg = { host:'localhost', port:3306, user:'root', password:'ausnita1947', database:'smart_campus' };
+const bcrypt = require('bcryptjs');
+const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus' };
 
-const HASH   = '$2a$12$xjR590gBxmlJwsPyTs.c6.ZegjDBLmQvA0g7HRBvFXObQ3QEcKgYm'; // campus@123
-const YASH_H = '$2a$12$N7HCt3g2Qh3LngfGuT557.akkAocsqK9NKipQuqJTuOwfLrC5cCZ2'; // yash@123
 
 // [user_id, email, first, last, phone, student_id, student_code, dept_id, sem, year]
 const students = [
@@ -131,6 +131,10 @@ const students = [
 ];
 
 async function run() {
+  if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
+  if (!process.env.DEMO_PASSWORD) throw new Error('Set DEMO_PASSWORD in backend/.env before creating demo accounts.');
+  const HASH = await bcrypt.hash(process.env.DEMO_PASSWORD, 12);
+  const YASH_H = await bcrypt.hash(process.env.YASH_DEMO_PASSWORD || process.env.DEMO_PASSWORD, 12);
   const db = await mysql.createConnection(cfg);
   console.log('Connected. Inserting students...');
   let count = 0;
