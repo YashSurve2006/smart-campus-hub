@@ -1,8 +1,9 @@
 // PHASE 6: Results + CGPA for all students
 // Existing: 6 results for student_id=1 (CSE sem5 endterm), CGPA student_id=1 sem5 = 9.00
 // Yash student_id=3, CSE sem7 → strong performer 80-89%, CGPA=9.20
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mysql = require('mysql2/promise');
-const cfg = { host:'localhost', port:3306, user:'root', password:'ausnita1947', database:'smart_campus' };
+const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus' };
 
 function gradeFromPct(pct) {
   if (pct >= 90) return ['O', 10.0];
@@ -21,6 +22,7 @@ function seededRand(seed) {
 }
 
 async function run() {
+  if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
   const db = await mysql.createConnection(cfg);
   console.log('Connected. Inserting results...');
 
