@@ -1,6 +1,9 @@
 
 -- Smart Campus Hub — Full Database Recovery Script
 -- Created: 2026-06-15
+-- DESTRUCTIVE WARNING: this script drops existing tables and all data in the selected database.
+-- Run only against a disposable development database after confirming the active schema.
+-- Never run this script against production or any database containing needed data.
 -- Instructions:
 -- 1. Create a database first: CREATE DATABASE smart_campus CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- 2. Use the database: USE smart_campus;
