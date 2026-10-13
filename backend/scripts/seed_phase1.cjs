@@ -1,7 +1,8 @@
 // PHASE 1: Extra Classrooms + Faculty (users + faculty records)
 const mysql = require('mysql2/promise');
 
-const cfg = { host:'localhost', port:3306, user:'root', password:'ausnita1947', database:'smart_campus', multipleStatements:true };
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
+const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus', multipleStatements: true };
 
 // Hashes: campus@123 = $2a$12$xjR590gBxmlJwsPyTs.c6.ZegjDBLmQvA0g7HRBvFXObQ3QEcKgYm
 const HASH = '$2a$12$xjR590gBxmlJwsPyTs.c6.ZegjDBLmQvA0g7HRBvFXObQ3QEcKgYm';
