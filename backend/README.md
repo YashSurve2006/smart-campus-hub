@@ -18,10 +18,11 @@ Express.js REST API with MySQL, JWT (HTTP-only cookie + Bearer), and Socket.IO f
 
    Edit `DB_*` and `JWT_SECRET`.
 
-3. Install and seed demo data:
+3. Install dependencies and configure local-only seed credentials in `.env` (`DEMO_PASSWORD` must be at least 12 characters). The seed script is destructive and refuses to run unless both `NODE_ENV=development` and `RESET_DEMO_DATA=true` are set. Use it only against a disposable development database:
 
    ```bash
    npm install
+   # Set NODE_ENV=development and RESET_DEMO_DATA=true in backend/.env first.
    npm run seed
    ```
 
@@ -31,13 +32,9 @@ Express.js REST API with MySQL, JWT (HTTP-only cookie + Bearer), and Socket.IO f
    npm run dev
    ```
 
-## Demo accounts (after seed)
+## Demo accounts (development only)
 
-| Role    | Email                     | Password    |
-|---------|---------------------------|-------------|
-| Admin   | admin@smartcampus.edu     | Campus@123  |
-| Faculty | dr.lee@smartcampus.edu    | Campus@123  |
-| Student | alex@student.smartcampus.edu | Campus@123 |
+The seed script creates sample accounts using the password configured in `DEMO_PASSWORD`. The password is intentionally not documented or printed by the script. Never enable demo accounts or destructive seeding in production. Use a dedicated, least-privileged database account rather than MySQL `root`.
 
 ## Main endpoints
 
