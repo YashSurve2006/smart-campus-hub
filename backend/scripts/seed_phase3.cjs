@@ -132,7 +132,7 @@ const students = [
 
 async function run() {
   if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
-  if (!process.env.DEMO_PASSWORD) throw new Error('Set DEMO_PASSWORD in backend/.env before creating demo accounts.');
+  if (!process.env.DEMO_PASSWORD || process.env.DEMO_PASSWORD.length < 12) throw new Error('Set DEMO_PASSWORD (at least 12 characters) in backend/.env before creating demo accounts.');
   const HASH = await bcrypt.hash(process.env.DEMO_PASSWORD, 12);
   const YASH_H = await bcrypt.hash(process.env.YASH_DEMO_PASSWORD || process.env.DEMO_PASSWORD, 12);
   const db = await mysql.createConnection(cfg);
