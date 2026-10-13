@@ -2,8 +2,9 @@
 // Existing: IDs 1-30 (CSE sem5, Mon-Fri)
 // Faculty mapping: dept1=fac1,2,3 | dept2=fac4,5 | dept3=fac6,7 | dept4=fac8,9 | dept5=fac10,11 | dept6=fac12,13
 // Classroom mapping: dept1=1-5,17 | dept2=7,8 | dept3=9,10,18 | dept4=11,12,19 | dept5=13,14,20 | dept6=15,16
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mysql = require('mysql2/promise');
-const cfg = { host:'localhost', port:3306, user:'root', password:'ausnita1947', database:'smart_campus' };
+const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus' };
 
 const slots = [
   ['08:00:00','09:00:00'],['09:00:00','10:00:00'],['10:00:00','11:00:00'],
@@ -48,6 +49,7 @@ const subjectMap = {
 };
 
 async function run() {
+  if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
   const db = await mysql.createConnection(cfg);
   console.log('Connected. Inserting timetable...');
   let count = 0;
