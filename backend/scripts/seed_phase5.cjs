@@ -1,10 +1,12 @@
 // PHASE 5: Attendance records for all students
 // Existing: 10 records for student_id=1, timetable_entries 1-10
 // Avoid uq_att_slot_student_day violations
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mysql = require('mysql2/promise');
-const cfg = { host:'localhost', port:3306, user:'root', password:'ausnita1947', database:'smart_campus' };
+const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus' };
 
 async function run() {
+  if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
   const db = await mysql.createConnection(cfg);
   console.log('Connected. Building attendance...');
 
