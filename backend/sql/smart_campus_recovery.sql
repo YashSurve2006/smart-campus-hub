@@ -493,11 +493,11 @@ INSERT INTO departments (name, code) VALUES
 ('AI & Data Science', 'AIDS');
 
 -- Users
--- Default password for all: campus@123 (bcrypt hash)
+-- Demo accounts are locked: password hashes are placeholders and must be reset before use.
 INSERT INTO users (email, password_hash, role, first_name, last_name, phone) VALUES
-('admin@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'admin', 'Admin', 'User', '+91 9876543210'),
-('faculty@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'faculty', 'Jordan', 'Lee', '+91 9876543211'),
-('student@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'student', 'Alex', 'Rivera', '+91 9876543212');
+('admin@gmail.com', '$2b$12$.....................................................', 'admin', 'Admin', 'User', '+91 9876543210'),
+('faculty@gmail.com', '$2b$12$.....................................................', 'faculty', 'Jordan', 'Lee', '+91 9876543211'),
+('student@gmail.com', '$2b$12$.....................................................', 'student', 'Alex', 'Rivera', '+91 9876543212');
 
 -- Classrooms (linked to CSE dept id=1)
 INSERT INTO classrooms (name, building, floor, capacity, department_id) VALUES
@@ -560,10 +560,10 @@ INSERT INTO timetable_entries (department_id, semester, day_of_week, start_time,
 
 -- Additional Users
 INSERT INTO users (email, password_hash, role, first_name, last_name, phone) VALUES
-('smith.faculty@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'faculty', 'Sarah', 'Smith', '+91 9876543213'),
-('john.doe@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'student', 'John', 'Doe', '+91 9876543214'),
-('jane.smith@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'student', 'Jane', 'Smith', '+91 9876543215'),
-('mike.wilson@gmail.com', '$2a$12$yWrgPXUjDpt6hAndd2bK6ein2jCjPmR79n0lnbT.0Yn6IX331ZSPu', 'student', 'Mike', 'Wilson', '+91 9876543216');
+('smith.faculty@gmail.com', '$2b$12$.....................................................', 'faculty', 'Sarah', 'Smith', '+91 9876543213'),
+('john.doe@gmail.com', '$2b$12$.....................................................', 'student', 'John', 'Doe', '+91 9876543214'),
+('jane.smith@gmail.com', '$2b$12$.....................................................', 'student', 'Jane', 'Smith', '+91 9876543215'),
+('mike.wilson@gmail.com', '$2b$12$.....................................................', 'student', 'Mike', 'Wilson', '+91 9876543216');
 
 -- Additional Faculty
 INSERT INTO faculty (user_id, employee_code, department_id, designation, specialization) VALUES
@@ -691,11 +691,5 @@ INSERT INTO results (student_id, subject_id, faculty_id, semester, exam_type, ma
 INSERT INTO cgpa_records (student_id, semester, sgpa, cgpa, total_credits) VALUES
 (4, 4, 8.83, 8.50, 24);
 
--- Default login credentials reminder
--- Email: admin@gmail.com, Password: campus@123
--- Email: faculty@gmail.com, Password: campus@123
--- Email: smith.faculty@gmail.com, Password: campus@123
--- Email: student@gmail.com, Password: campus@123
--- Email: john.doe@gmail.com, Password: campus@123
--- Email: jane.smith@gmail.com, Password: campus@123
--- Email: mike.wilson@gmail.com, Password: campus@123
+-- Password reset is required for all demo accounts created by this recovery script.
+-- Never use this destructive recovery script against a production database.
