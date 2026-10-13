@@ -3,7 +3,6 @@
 // Faculty mapping: dept1=fac1,2,3 | dept2=fac4,5 | dept3=fac6,7 | dept4=fac8,9 | dept5=fac10,11 | dept6=fac12,13
 // Classroom mapping: dept1=1-5,17 | dept2=7,8 | dept3=9,10,18 | dept4=11,12,19 | dept5=13,14,20 | dept6=15,16
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mysql = require('mysql2/promise');
 const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus' };
 
