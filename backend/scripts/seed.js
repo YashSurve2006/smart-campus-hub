@@ -6,8 +6,8 @@ import { randomUUID } from 'crypto';
 const {
   DB_HOST = 'localhost',
   DB_PORT = 3306,
-  DB_USER = 'root',
-  DB_PASSWORD = '',
+  DB_USER,
+  DB_PASSWORD,
   DB_NAME = 'smart_campus',
 } = process.env;
 
@@ -43,6 +43,12 @@ function gradeMeta(marks) {
 }
 
 async function main() {
+  if (process.env.NODE_ENV !== 'development' || process.env.RESET_DEMO_DATA !== 'true') {
+    throw new Error('Refusing destructive seed: set NODE_ENV=development and RESET_DEMO_DATA=true only for a disposable development database.');
+  }
+  if (!DB_USER || !DB_PASSWORD) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env.');
+  const demoPassword = process.env.DEMO_PASSWORD;
+  if (!demoPassword || demoPassword.length < 12) throw new Error('Set DEMO_PASSWORD (at least 12 characters) in backend/.env.');
   const conn = await mysql.createConnection({
     host: DB_HOST,
     port: Number(DB_PORT),
@@ -54,7 +60,7 @@ async function main() {
 
   console.log('🚀 Connected to MySQL');
 
-  const passwordHash = await bcrypt.hash('campus@123', 12);
+  const passwordHash = await bcrypt.hash(demoPassword, 12);
 
   await conn.beginTransaction();
 
@@ -737,15 +743,15 @@ async function main() {
     console.log('');
     console.log('ADMIN LOGIN');
     console.log('Email: admin@gmail.com');
-    console.log('Password: campus@123');
+    console.log('Password: configured via DEMO_PASSWORD (not printed).');
     console.log('');
     console.log('FACULTY LOGIN');
     console.log('Email: faculty@gmail.com');
-    console.log('Password: campus@123');
+    console.log('Password: configured via DEMO_PASSWORD (not printed).');
     console.log('');
     console.log('STUDENT LOGIN');
     console.log('Email: student@gmail.com');
-    console.log('Password: campus@123');
+    console.log('Password: configured via DEMO_PASSWORD (not printed).');
     console.log('');
 
     await conn.end();
