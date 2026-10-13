@@ -1,11 +1,9 @@
 // PHASE 1: Extra Classrooms + Faculty (users + faculty records)
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
 
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const cfg = { host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_NAME || 'smart_campus', multipleStatements: true };
-
-// Hashes: campus@123 = $2a$12$xjR590gBxmlJwsPyTs.c6.ZegjDBLmQvA0g7HRBvFXObQ3QEcKgYm
-const HASH = '$2a$12$xjR590gBxmlJwsPyTs.c6.ZegjDBLmQvA0g7HRBvFXObQ3QEcKgYm';
 
 const classrooms = [
   [7,'B-101','Academic Block B','1',80,2],[8,'B-102','Academic Block B','1',80,2],
@@ -34,6 +32,9 @@ const facultyData = [
 ];
 
 async function run() {
+  if (!cfg.user || !cfg.password) throw new Error('Set DB_USER and DB_PASSWORD in backend/.env before running this seed script.');
+  if (!process.env.DEMO_PASSWORD) throw new Error('Set DEMO_PASSWORD in backend/.env before creating demo accounts.');
+  const HASH = await bcrypt.hash(process.env.DEMO_PASSWORD, 12);
   const db = await mysql.createConnection(cfg);
   console.log('Connected.');
 
